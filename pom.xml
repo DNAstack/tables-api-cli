@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.ga4gh.dataset</groupId>
+	<artifactId>dataset-api-cli</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<name>dataset-api-cli</name>
+	<description>Dataset API Command-line Client</description>
+
+	<properties>
+		<java.version>11</java.version>
+		<maven.compiler.version>3.8.1</maven.compiler.version>
+		<lombok.version>1.18.8</lombok.version>
+		<junit.version>5.4.2</junit.version>
+		<everit.version>1.11.1</everit.version>
+		<jackson.version>2.9.8</jackson.version>
+		<version.guava>27.1-jre</version.guava>
+		<version.slf4j>1.7.25</version.slf4j>
+		<main-class>org.ga4gh.dataset.cli.cmd.Main</main-class>
+	</properties>
+
+	<scm>
+		<connection>scm:git:git@github.com:DNAstack/dataset-api-cli.git</connection>
+		<developerConnection>scm:git:git@github.com:DNAstack/dataset-api-cli.git</developerConnection>
+		<url>https://github.com/DNAstack/dataset-api-cli</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>4.0.0-beta-1b</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ga4gh.dataset</groupId>
+			<artifactId>dataset-api-java-client</artifactId>
+			<version>0.1.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.version}</version>
+				<configuration>
+					<release>${java.version}</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M3</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<preparationGoals>clean verify -DskipTests</preparationGoals>
+					<releaseProfiles>oss-release</releaseProfiles>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<mavenExecutorId>forked-path</mavenExecutorId>
+					<pushChanges>false</pushChanges>
+					<localCheckout>true</localCheckout>
+					<tagNameFormat>@{project.version}</tagNameFormat>
+					<useReleaseProfile>false</useReleaseProfile>
+					<goals>deploy</goals>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>executable</shadedClassifierName>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>${main-class}</Main-Class>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.skife.maven</groupId>
+				<artifactId>really-executable-jar-maven-plugin</artifactId>
+				<configuration>
+					<flags>-Xmx1G</flags>
+					<classifier>executable</classifier>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>really-executable-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>dnastack-releases</id>
+			<layout>default</layout>
+			<url>https://nexus.dnastack.com/content/repositories/releases</url>
+		</repository>
+	</distributionManagement>
+</project>
