@@ -31,6 +31,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>1.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.vandermeer</groupId>
+			<artifactId>asciitable</artifactId>
+			<version>0.3.2</version>
+		</dependency>
+		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
 			<version>4.0.0-beta-1b</version>
@@ -38,7 +48,7 @@
 		<dependency>
 			<groupId>org.ga4gh.dataset</groupId>
 			<artifactId>dataset-api-java-client</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<version>0.2.0</version>
 		</dependency>
 	</dependencies>
 
