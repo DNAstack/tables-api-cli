@@ -9,14 +9,14 @@
 
 ### Installation
 
-Download [dataset-api-cli-0.2.0-executable.jar](https://nexus.dnastack.com/service/local/repositories/releases/content/org/ga4gh/dataset/dataset-api-cli/0.2.0/dataset-api-cli-0.2.0-executable.jar). Make it executable (e.g.
-`chmod +x dataset-api-cli-0.2.0-executable.jar`)
+Download [dataset-api-cli-0.2.1-executable.jar](https://nexus.dnastack.com/service/local/repositories/releases/content/org/ga4gh/dataset/dataset-api-cli/0.2.1/dataset-api-cli-0.2.1-executable.jar). Make it executable (e.g.
+`chmod +x dataset-api-cli-0.2.1-executable.jar`)
 
 Optionally create an executable `datasets` script, with contents like this:
 
 ```bash
 #!/bin/bash
-/path/to/dataset-api-cli-0.2.0-executable.jar $@
+/path/to/dataset-api-cli-0.2.1-executable.jar $@
 ```
 
 In all of the examples bellow we'll use `datasets` shortcut instead of the full JAR name.
