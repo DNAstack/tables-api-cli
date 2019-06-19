@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.ga4gh.dataset</groupId>
 	<artifactId>dataset-api-cli</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<name>dataset-api-cli</name>
 	<description>Dataset API Command-line Client</description>
 
@@ -26,7 +24,7 @@
 		<connection>scm:git:git@github.com:DNAstack/dataset-api-cli.git</connection>
 		<developerConnection>scm:git:git@github.com:DNAstack/dataset-api-cli.git</developerConnection>
 		<url>https://github.com/DNAstack/dataset-api-cli</url>
-		<tag>HEAD</tag>
+		<tag>0.2.0</tag>
 	</scm>
 
 	<dependencies>
@@ -108,8 +106,7 @@
 							<shadedArtifactAttached>true</shadedArtifactAttached>
 							<shadedClassifierName>executable</shadedClassifierName>
 							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Main-Class>${main-class}</Main-Class>
 									</manifestEntries>
