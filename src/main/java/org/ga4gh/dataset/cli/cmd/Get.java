@@ -12,16 +12,20 @@ import org.everit.json.schema.Schema;
 import org.ga4gh.dataset.cli.ClientUtil;
 import org.ga4gh.dataset.cli.Column;
 import org.ga4gh.dataset.cli.ConfigUtil;
+import org.ga4gh.dataset.cli.LoggingOptions;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "get", description = "Get dataset")
 public class Get implements Runnable {
+
+    @Mixin private LoggingOptions loggingOptions;
 
     @Option(
             names = {"-I", "--dataset-id", "--id"},
@@ -32,6 +36,7 @@ public class Get implements Runnable {
     @Override
     public void run() {
         try {
+            loggingOptions.setupLogging();
             var client = ClientUtil.createClient(ConfigUtil.getUserConfig());
 
             CWC_LongestLine cwc = new CWC_LongestLine();

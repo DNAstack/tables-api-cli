@@ -4,13 +4,17 @@ import java.io.File;
 
 import org.ga4gh.dataset.cli.ClientUtil;
 import org.ga4gh.dataset.cli.ConfigUtil;
+import org.ga4gh.dataset.cli.LoggingOptions;
 import org.ga4gh.dataset.client.DatasetFileStorage;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "download", description = "Download dataset")
 public class Download implements Runnable {
+
+    @Mixin private LoggingOptions loggingOptions;
 
     @Option(
             names = {"-I", "--dataset-id", "--id"},
@@ -27,6 +31,7 @@ public class Download implements Runnable {
     @Override
     public void run() {
         try {
+            loggingOptions.setupLogging();
             var client = ClientUtil.createClient(ConfigUtil.getUserConfig());
 
             var dataset = client.getDataset(datasetId);
