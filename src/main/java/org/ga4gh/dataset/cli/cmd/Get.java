@@ -31,7 +31,8 @@ public class Get implements Runnable {
 
     @Override
     public void run() {
-        try (var client = ClientUtil.createClient(ConfigUtil.getUserConfig())) {
+        try {
+            var client = ClientUtil.createClient(ConfigUtil.getUserConfig());
 
             CWC_LongestLine cwc = new CWC_LongestLine();
             cwc.add(4, 100);
@@ -56,6 +57,8 @@ public class Get implements Runnable {
             }
             at.addRule();
             System.out.println(at.render());
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
