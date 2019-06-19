@@ -7,13 +7,24 @@
 
 ## Usage
 
-Download [dataset-api-cli-0.1.0-executable.jar](https://nexus.dnastack.com/service/local/repositories/releases/content/org/ga4gh/dataset/dataset-api-cli/0.1.0/dataset-api-cli-0.1.0-executable.jar). Make it executable (e.g.
-`chmod +x dataset-api-cli-0.1.0-executable.jar`)
+### Installation
 
-### Set configuration to user config
+Download [dataset-api-cli-0.2.0-executable.jar](https://nexus.dnastack.com/service/local/repositories/releases/content/org/ga4gh/dataset/dataset-api-cli/0.2.0/dataset-api-cli-0.2.0-executable.jar). Make it executable (e.g.
+`chmod +x dataset-api-cli-0.2.0-executable.jar`)
+
+Optionally create an executable `datasets` script, with contents like this:
+
+```bash
+#!/bin/bash
+/path/to/dataset-api-cli-0.2.0-executable.jar $@
+```
+
+In all of the examples bellow we'll use `datasets` shortcut instead of the full JAR name.
+
+### Configuration
 
 ```
-$ ./dataset-api-cli-0.1.0-executable.jar set-config \
+$ datasets set-config \
   --api-url https://pgp-dataset-service.staging.dnastack.com/data/v1 \
   --username yourname \
   --password yourpassword
@@ -24,7 +35,7 @@ This will store the config to your user path `~/.config/datasets/config.json`
 ### List datasets
 
 ```
-$ ./dataset-api-cli-0.1.0-executable.jar list
+$ datasets list
 ┌────────────┬───────────────────────┬────────────────────────────────────────┐
 │ Dataset ID │ Dataset description   │ Schema                                 │
 ├────────────┼───────────────────────┼────────────────────────────────────────┤
@@ -40,7 +51,7 @@ $ ./dataset-api-cli-0.1.0-executable.jar list
 ### Get dataset
 
 ```
-$ ./dataset-api-cli-0.1.0-executable.jar get -I subjects
+$ datasets get -I subjects
 ┌─────────┬────────────┬────────────┬─────┐
 │ id      │ birth_date │ blood_type │ sex │
 ├─────────┼────────────┼────────────┼─────┤
@@ -60,6 +71,44 @@ $ ./dataset-api-cli-0.1.0-executable.jar get -I subjects
 ...
 
 ```
+
+### Download dataset
+
+You can download a snapshot of particular dataset to local filesystem like this:
+
+```
+$ datasets download -I subjects -o output
+```
+
+The directory `output` will then have the following structure:
+
+```
+output/
+├── dataset
+│   └── subjects
+├── dataset-pages
+│   └── subjects
+│       ├── 1
+│       ├── 2
+│       ├── 3
+│       ├── 4
+│       └── 5
+├── datasets
+├── schema
+│   ├── ca.personalgenomes.schemas.BloodType
+│   ├── ca.personalgenomes.schemas.Sex
+│   └── ca.personalgenomes.schemas.Subject
+└── schemas
+```
+
+Where
+
+- `datasets` is the dataset index, when creating a new `output` folder, this will contain only `subjects` dataset, you can download multiple datasets into one output folder. In such case subsequent datasets will be added to the index.
+- `dataset/subjects` is JSON file containing the first page of the `subjects` dataset
+- `dataset-pages` subsequent dataset pages. These are pointed to by the URLS inside of the `pagination` element.
+- `schemas` is the schema index. Should contain all of the schemas used in the downloaded datasets
+- `schema/{id}` are JSON files containing the schemas used in the downloaded datasets
+
 
 ## Release
 
