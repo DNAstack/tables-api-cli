@@ -1,4 +1,4 @@
-package org.ga4gh.dataset.cli;
+package org.ga4gh.dataset.cli.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,10 +7,13 @@ import java.io.UncheckedIOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ga4gh.dataset.cli.Config;
 
 public class ConfigUtil {
 
     private static ObjectMapper mapper = new ObjectMapper();
+
+    private static Config config;
 
     private static File getConfigDir() {
         return new File(System.getProperty("user.home") + "/.config/datasets");
@@ -18,6 +21,10 @@ public class ConfigUtil {
 
     private static File getConfigFile() {
         return new File(getConfigDir(), "config.json");
+    }
+
+    public static void setConfig(Config config){
+        ConfigUtil.config = config;
     }
 
     public static void save(Config config) {
@@ -42,11 +49,16 @@ public class ConfigUtil {
     }
 
     public static Config getUserConfig() {
+        if(config != null){
+            return config;
+        }
         File configFile = getConfigFile();
         if (!configFile.exists()) {
-            return new Config();
+            config = new Config();
+            return config;
         } else {
-            return loadConfig(configFile);
+            config = loadConfig(configFile);
+            return config;
         }
     }
 

@@ -6,15 +6,20 @@ import picocli.CommandLine.Command;
 @Command(name = "datasets")
 public class Main implements Runnable {
 
+    public static int runCommand(String... args){
+        return  new CommandLine(new Main())
+                .addSubcommand(new SetConfig())
+                .addSubcommand(new ListDatasets())
+                .addSubcommand(new Get())
+                .addSubcommand(new Import())
+                .setCaseInsensitiveEnumValuesAllowed(true)
+                .execute(args);
+    }
     public static void main(String... args) {
         try {
-            System.exit(
-                    new CommandLine(new Main())
-                            .addSubcommand(new SetConfig())
-                            .addSubcommand(new List())
-                            .addSubcommand(new Get())
-                            .addSubcommand(new Download())
-                            .execute(args));
+
+           System.exit(runCommand(args));
+
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
             System.exit(0);

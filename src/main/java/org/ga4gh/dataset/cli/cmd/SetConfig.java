@@ -1,40 +1,40 @@
 package org.ga4gh.dataset.cli.cmd;
 
+import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.Config;
-import org.ga4gh.dataset.cli.ConfigUtil;
+import org.ga4gh.dataset.cli.util.ConfigUtil;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 
-@Command(name = "set-config", description = "Set configuration to a user-local config file")
+
+@Command(name = "set-config", description = "Set configuration to a user-local config file",  requiredOptionMarker='*', sortOptions = false)
 public class SetConfig implements Runnable {
 
-    @Option(names = "--api-url", description = "Dataset API Location")
-    private String apiUrl;
+    @Mixin
+    private AuthOptions authOptions;
 
-    @Option(names = "--username", description = "Username for HTTP BASIC Authentication")
-    private String username;
-
-    @Option(names = "--password", description = "Password for HTTP BASIC Authentication")
-    private String password;
-
-    private Config userConfig;
+    //private Config userConfig;
 
     @Override
     public void run() {
-        userConfig = ConfigUtil.getUserConfig();
+        authOptions.initAuth();
+        /*userConfig = ConfigUtil.getUserConfig();
 
-        if (apiUrl != null) {
-            userConfig.setApiUrl(apiUrl);
+        if (authOptions.getApiUrl() != null) {
+            userConfig.setApiUrl(authOptions.getApiUrl());
         }
-        if (username != null) {
-            userConfig.setUsername(username);
+        if (authOptions.getUsername() != null) {
+            userConfig.setUsername(authOptions.getUsername());
         }
-        if (password != null) {
-            userConfig.setPassword(password);
-        }
+        if (authOptions.getPassword() != null) {
+            userConfig.setPassword(authOptions.getPassword());
+        }*/
 
-        ConfigUtil.save(userConfig);
-        System.out.println(ConfigUtil.dump(userConfig));
+        //save any changed config options.
+        ConfigUtil.save(authOptions.getUserConfig());
+        System.out.println(ConfigUtil.dump(authOptions.getUserConfig()));
     }
 }
