@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 public class DatasetFetcher {
-    private static final String DATASET_GET_ENDPOINT_TEMPLATE = "dataset/%s";  //THIS IS THE OLD ENDPOINT!
+    private static final String DATASET_GET_ENDPOINT_TEMPLATE = "datasets/%s";  //THIS IS THE OLD ENDPOINT!
 
     private String datasetEndpointTemplate = DATASET_GET_ENDPOINT_TEMPLATE;
     private final String datasetId;
