@@ -1,31 +1,26 @@
 package org.ga4gh.dataset.cli.cmd;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
-import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.Schema;
-import org.ga4gh.dataset.cli.ClientUtil;
-import org.ga4gh.dataset.cli.Column;
-import org.ga4gh.dataset.cli.ConfigUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.ClassUtils;
+import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.LoggingOptions;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import de.vandermeer.asciitable.AsciiTable;
-import de.vandermeer.asciitable.CWC_LongestLine;
+import org.ga4gh.dataset.cli.OutputOptions;
+import org.ga4gh.dataset.cli.util.Outputter;
+import org.ga4gh.dataset.cli.ga4gh.Dataset;
+import org.ga4gh.dataset.cli.util.DatasetFetcher;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "get", description = "Get dataset")
+import java.util.*;
+
+@Command(name = "get", description = "Get dataset (*=required argument)", requiredOptionMarker='*', sortOptions = false)
 public class Get implements Runnable {
 
     @Mixin private LoggingOptions loggingOptions;
+    @Mixin private OutputOptions outputOptions;
+    @Mixin private AuthOptions authOptions;
 
     @Option(
             names = {"-I", "--dataset-id", "--id"},
@@ -33,48 +28,92 @@ public class Get implements Runnable {
             required = true)
     private String datasetId;
 
+    @Option(names = {"--dataset-endpoint"},
+            description = "Dataset endpoint (this argument will be deprecated soon)",
+            required=false)
+    private String datasetEndpoint;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private List<String> propertyKeys;
+
+    private void assertSchemaPropertyKeysAreSameASFirstPagePropertyKeys(LinkedHashMap<String, Object> propertyMapToTest){
+        Set<String> foundKeys = propertyMapToTest.keySet();
+        if(!propertyKeys.containsAll(foundKeys)){
+            throw new IllegalArgumentException("Unexpected schema properties found on a page that do not match schema on first page");
+        }else if(!foundKeys.containsAll(propertyKeys)){
+            throw new IllegalArgumentException("Missing schema properties on page that were present in first page schema.");
+        }
+    }
+
+    private List<String> getRow(Map<String, Object> object){
+        List<String> outputLine = new ArrayList<>(propertyKeys.size());
+        for(String key : propertyKeys){
+            Object value = object.get(key);
+            if(value == null) {
+                outputLine.add("");
+            }else if((value instanceof String) || (ClassUtils.isPrimitiveOrWrapper(value.getClass()))){
+                outputLine.add(value.toString());
+            }else{
+                try {
+
+                    outputLine.add(objectMapper.writeValueAsString(value));
+                }catch(JsonProcessingException jpe){
+                    throw new IllegalArgumentException(jpe);
+                }
+            }
+        }
+        return outputLine;
+    }
+
+    private String getPropertyAsJson(Object property){
+        try {
+            return objectMapper.writeValueAsString(property);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+
     @Override
     public void run() {
-        try {
-            loggingOptions.setupLogging();
-            var client = ClientUtil.createClient(ConfigUtil.getUserConfig());
+        loggingOptions.setupLogging();
+        authOptions.initAuth();
+        DatasetFetcher datasetFetcher = new DatasetFetcher(datasetId, false);
+        if(datasetEndpoint != null){
+            datasetFetcher.setDatasetEndpoint(datasetEndpoint);
+        }
+        if(outputOptions.getOutputMode() == OutputOptions.OutputMode.JSON){
+                System.out.print("[");
+                boolean first = true;
+                for (Dataset dataset : datasetFetcher.getPage()) {
+                    if(!first){
+                        System.out.print(",");
+                    }
+                    String propertyListAsJson = dataset.getObjects().stream()
+                                                       .map(this::getPropertyAsJson)
+                                                       .reduce((p1,p2)->p1+","+p2).get();
+                    System.out.print(propertyListAsJson);
+                    first = false;
 
-            CWC_LongestLine cwc = new CWC_LongestLine();
-            cwc.add(4, 100);
-            var dataset = client.getDataset(datasetId);
+                }
+                System.out.println("]");
+        }else {
+            try (Outputter outputter = outputOptions.getOutputter()) {
+                for (Dataset dataset : datasetFetcher.getPage()) {
+                    if (propertyKeys == null) {
+                        propertyKeys = new ArrayList<>(dataset.getSchema().getPropertyMap().keySet());
+                        outputter.emitHeader(propertyKeys);
+                    } else {
+                        assertSchemaPropertyKeysAreSameASFirstPagePropertyKeys(dataset.getSchema().getPropertyMap());
+                    }
 
-            ObjectSchema schema = dataset.schema();
-            Map<String, Schema> properties = schema.getPropertySchemas();
-            var columns =
-                    properties.entrySet().stream()
-                            .map(entry -> new Column(entry.getKey(), entry.getValue()))
-                            .collect(toList());
-            columns.sort(Comparator.naturalOrder());
-            AsciiTable at = new AsciiTable();
-            at.getContext().setWidth(120);
-            at.getRenderer().setCWC(cwc);
-            at.addRule();
-            var columnNames = columns.stream().map(Column::getName).collect(toList());
-            at.addRow(columnNames).setPaddingLeftRight(1);
-            at.addRule();
-            for (var object : dataset) {
-                at.addRow(getRow(columnNames, object)).setPaddingLeftRight(1);
+                    for (Map<String, Object> object : dataset.getObjects()) {
+                        outputter.emitLine(getRow(object));
+                    }
+                }
             }
-            at.addRule();
-            System.out.println(at.render());
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private List<String> getRow(List<String> columns, ObjectNode node) {
-        List<String> values = new ArrayList<>();
-        for (var colname : columns) {
-            String value = node.has(colname) ? node.get(colname).asText() : "";
-            values.add(value);
-        }
-        return values;
-    }
 }
