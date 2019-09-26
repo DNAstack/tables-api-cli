@@ -27,7 +27,7 @@ public class DatasetFetcher {
         this.datasetEndpointTemplate = endpoint+"/%s";
     }
 
-    private String getAbsoluteUrl(String urlOrPath){
+    protected String getAbsoluteUrl(String urlOrPath){
         try {
             URI u = new URI(urlOrPath);
             if(u.isAbsolute()){
@@ -45,7 +45,7 @@ public class DatasetFetcher {
     }
 
 
-    private LinkedHashMap<String, Object> resolveRefs(LinkedHashMap<String, Object> properties){
+    protected LinkedHashMap<String, Object> resolveRefs(LinkedHashMap<String, Object> properties){
         String refUrl = (String)properties.get("$ref");
         if(refUrl != null){
             LinkedHashMap<String, Object> resolvedProperties = HttpUtils.getAs(getAbsoluteUrl(refUrl), new TypeReference<LinkedHashMap<String,Object>>(){}); //don't recurse, references at a deeper level than this won't be expanded.

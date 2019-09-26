@@ -12,6 +12,7 @@ public class Main implements Runnable {
                 .addSubcommand(new ListDatasets())
                 .addSubcommand(new Get())
                 .addSubcommand(new Import())
+                .addSubcommand(new Query())
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);
     }

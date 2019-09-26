@@ -45,6 +45,37 @@ public class HttpUtils {
         }
     }
 
+    public static String post(String url, String requestBody) {
+        log.debug("POST to "+url + " with REQUEST BODY " + requestBody);
+        RequestBody body = RequestBody.create(requestBody, MediaType.parse("application/json"));
+        Request request = new Request.Builder().url(url).post(body).build();
+
+        OkHttpClient client = HttpUtils.createAuthenticatedClient();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new InvalidHttpStatusException("Server returned unexpected status "+response.code(), response.code());
+            }
+            String json = response.body().string();
+            //  log.debug("Response JSON: "+json);
+            return json;
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
+    public static <T> T postAs(String url, String requestBody, Class<T> clazz) {
+        try {
+            String json = post(url, requestBody);
+
+            ObjectMapper om = new ObjectMapper();
+
+            return om.readValue(json, clazz);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
     public static <T> T getAs(String url, Class<T> clazz) {
         try {
             String json = get(url);
