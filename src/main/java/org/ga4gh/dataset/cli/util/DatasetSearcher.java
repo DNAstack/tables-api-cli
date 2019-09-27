@@ -28,6 +28,7 @@ public class DatasetSearcher extends DatasetFetcher {
                 .addPathSegments(SEARCH_ENDPOINT).build().url().toString();
     }
 
+    @Override
     public Iterable<Dataset> getPage(){
         return new Iterable<>(){
             @Override
