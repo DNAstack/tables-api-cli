@@ -7,16 +7,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import org.ga4gh.dataset.cli.AuthOptions;
-import org.ga4gh.dataset.cli.util.ConfigUtil;
-import org.ga4gh.dataset.cli.util.HttpUtils;
 import org.ga4gh.dataset.cli.LoggingOptions;
 import org.ga4gh.dataset.cli.OutputOptions;
-import org.ga4gh.dataset.cli.util.Outputter;
+import org.ga4gh.dataset.cli.util.ConfigUtil;
+import org.ga4gh.dataset.cli.util.HttpUtils;
+import org.ga4gh.dataset.cli.util.outputter.Outputter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 

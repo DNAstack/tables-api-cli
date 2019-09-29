@@ -1,7 +1,7 @@
 package org.ga4gh.dataset.cli;
 
 import lombok.Getter;
-import org.ga4gh.dataset.cli.util.Outputter;
+import org.ga4gh.dataset.cli.util.outputter.Outputter;
 import picocli.CommandLine;
 
 @Getter
