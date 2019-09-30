@@ -4,12 +4,12 @@ import com.google.cloud.storage.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class GSPublisher {
+public class GCSPublisher {
 
     private final String bucket;
     private final String blob;
 
-    public GSPublisher(String destination) {
+    public GCSPublisher(String destination) {
         if (destination == null) {
            this.bucket = null;
            this.blob = null;
@@ -21,6 +21,14 @@ public class GSPublisher {
         // flaky
         this.bucket = destination.substring(destination.indexOf('/') + 2, destination.lastIndexOf('/'));
         this.blob = destination.substring("gs://".length() + bucket.length() + 1);
+    }
+
+    public String getBucket() {
+        return this.bucket;
+    }
+
+    public String getBlob() {
+        return this.blob;
     }
 
     public void publish(String dataset) {

@@ -1,7 +1,7 @@
 package org.ga4gh.dataset.cli;
 
 import lombok.Getter;
-import org.ga4gh.dataset.cli.util.GSPublisher;
+import org.ga4gh.dataset.cli.util.GCSPublisher;
 import picocli.CommandLine;
 
 //Better name?
@@ -12,7 +12,7 @@ public class PublishOptions {
     @CommandLine.Option(names = {"-ptb","--publish-to-bucket"}, description = "A valid GCS URI of the format gs://{bucket}/{blob}")
     private String publishDestination;
 
-    public GSPublisher getPublisher(){
-        return new GSPublisher(publishDestination);
+    public GCSPublisher getPublisher(){
+        return new GCSPublisher(publishDestination);
     }
 }
