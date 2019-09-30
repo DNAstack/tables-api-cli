@@ -9,29 +9,30 @@ public class CharacterSeparatedOutputter extends FormattedOutputter {
 
     private String delimiter;
 
-    public CharacterSeparatedOutputter(String delimiter) {
+    CharacterSeparatedOutputter(String delimiter) {
         this.delimiter = delimiter;
     }
 
     @Override
-    public String outputHeader(Dataset page) {
+    public void outputHeader(Dataset page, StringBuilder output) {
+        assertPropertyConsistency(page);
         String header = String.join(delimiter, propertyKeys) + String.format("%n");
-        return header;
+        output.append(header);
     }
 
     @Override
-    public String outputRows(Dataset page) {
+    public void outputRows(Dataset page, StringBuilder output) {
         assertPropertyConsistency(page);
-        StringBuilder output = new StringBuilder();
+        StringBuilder rows = new StringBuilder();
         for (Map<String, Object> object : page.getObjects()) {
             List<String> row = getRow(propertyKeys, object);
-            output.append(String.join(delimiter, row) + String.format("%n"));
+            rows.append(String.join(delimiter, row) + String.format("%n"));
         }
-        return output.toString();
+        output.append(rows);
     }
 
     @Override
-    public String outputFooter(Dataset page) {
-        return "";
+    public void outputFooter(Dataset page, StringBuilder output) {
+        return;
     }
 }

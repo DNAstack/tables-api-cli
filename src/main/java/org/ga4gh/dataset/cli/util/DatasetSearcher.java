@@ -29,7 +29,7 @@ public class DatasetSearcher extends DatasetFetcher {
     }
 
     @Override
-    public Iterable<Dataset> getPage(){
+    public Iterable<Dataset> getPages(){
         return new Iterable<>(){
             @Override
             public Iterator<Dataset> iterator() {

@@ -4,9 +4,9 @@ import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.LoggingOptions;
 import org.ga4gh.dataset.cli.OutputOptions;
 import org.ga4gh.dataset.cli.PublishOptions;
+import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import org.ga4gh.dataset.cli.util.GSPublisher;
 import org.ga4gh.dataset.cli.util.outputter.Outputter;
-import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import org.ga4gh.dataset.cli.util.DatasetFetcher;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -41,15 +41,8 @@ public class Get implements Runnable {
         }
         Outputter outputter = outputOptions.getOutputter();
         GSPublisher publisher = publishOptions.getPublisher();
-        boolean emitHeader = true;
-        StringBuilder output = new StringBuilder();
-        for (Dataset dataset : datasetFetcher.getPage()) {
-            String pageOutput = outputter.output(dataset, emitHeader);
-            System.out.println(pageOutput);
-            output.append(pageOutput);
-            emitHeader = false;
-        }
-        publisher.publish(output.toString());
+        String output = outputter.output(datasetFetcher.getPages());
+        System.out.print(output);
+        publisher.publish(output);
     }
-
 }

@@ -59,7 +59,7 @@ public class DatasetFetcher {
         }
     }
 
-    public Iterable<Dataset> getPage(){
+    public Iterable<Dataset> getPages(){
         //String datasetUrl = String.format(datasetEndpointTemplate, datasetId);
         return new Iterable<>(){
             @Override

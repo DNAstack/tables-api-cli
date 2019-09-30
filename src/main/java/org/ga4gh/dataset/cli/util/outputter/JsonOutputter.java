@@ -7,29 +7,30 @@ import java.util.List;
 
 public class JsonOutputter extends FormattedOutputter {
 
-    private List<String> propertyKeys;
     private boolean firstPage = true;
 
-    public JsonOutputter() {
+    JsonOutputter() {
     }
 
     @Override
-    public String outputHeader(Dataset page) {
-        return "[";
+    public void outputHeader(Dataset page, StringBuilder output) {
+        output.append("[");
     }
 
     @Override
-    public String outputRows(Dataset page) {
+    public void outputRows(Dataset page, StringBuilder output) {
         assertPropertyConsistency(page);
         String propertyListAsJson = page.getObjects().stream()
                 .map(this::getPropertyAsJson)
                 .reduce((p1,p2)->p1+","+p2).get();
-        return propertyListAsJson;
+        output.append(propertyListAsJson);
+        output.append(",");
     }
 
     @Override
-    public String outputFooter(Dataset page) {
-        return "]";
+    public void outputFooter(Dataset page, StringBuilder output) {
+        output.deleteCharAt(output.length() - 1);
+        output.append("]");
     }
 
     private String getPropertyAsJson(Object property){

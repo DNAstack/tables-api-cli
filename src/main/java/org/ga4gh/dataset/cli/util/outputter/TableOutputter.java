@@ -7,9 +7,10 @@ import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import java.util.*;
 
 public class TableOutputter extends FormattedOutputter {
+
     private AsciiTable asciiTable;
 
-    public TableOutputter() {
+    TableOutputter() {
         CWC_LongestLine cwc = new CWC_LongestLine();
         cwc.add(4, 100);
         asciiTable = new AsciiTable();
@@ -19,14 +20,14 @@ public class TableOutputter extends FormattedOutputter {
     }
 
     @Override
-    public String outputHeader(Dataset page) {
+    public void outputHeader(Dataset page, StringBuilder output) {
         asciiTable.addRow(propertyKeys).setPaddingLeftRight(1);
         asciiTable.addRule();
-        return asciiTable.render() + String.format("%n");
+        output.append(asciiTable.render()).append(String.format("%n"));
     }
 
     @Override
-    public String outputRows(Dataset page) {
+    public void outputRows(Dataset page, StringBuilder output) {
         assertPropertyConsistency(page);
         for (Map<String, Object> object : page.getObjects()) {
             List<String> row = getRow(propertyKeys, object);
@@ -34,12 +35,12 @@ public class TableOutputter extends FormattedOutputter {
         }
         String[] asciiRows = asciiTable.renderAsArray();
         String[] rows = Arrays.copyOfRange(asciiRows, 3, asciiRows.length);
-        return String.join(String.format("%n"), rows);
+        output.append(String.join(String.format("%n"), rows));
     }
 
     @Override
-    public String outputFooter(Dataset page) {
+    public void outputFooter(Dataset page, StringBuilder output) {
         asciiTable.addRule();
-        return String.format("%n");
+        output.append(String.format("%n"));
     }
 }

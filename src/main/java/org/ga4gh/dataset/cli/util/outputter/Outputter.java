@@ -11,6 +11,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class Outputter implements Closeable {
@@ -38,8 +39,20 @@ public class Outputter implements Closeable {
         }
     }
 
-    public String output(Dataset page, boolean emitHeader) {
-        return this.formattedOutputter.output(page, emitHeader);
+    public String output(Iterable<Dataset> dataset) {
+        boolean firstPage = true;
+        StringBuilder output = new StringBuilder();
+        for (Dataset page : dataset) {
+            if (firstPage) {
+                this.formattedOutputter.outputHeader(page, output);
+                firstPage = false;
+            }
+            this.formattedOutputter.outputRows(page, output);
+            if (page.getPagination() == null || page.getPagination().getNextPageUrl() == null) {
+                this.formattedOutputter.outputFooter(page, output);
+            }
+        }
+        return output.toString();
     }
 
     public void emitHeader(String ...headers){

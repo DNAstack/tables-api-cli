@@ -10,20 +10,9 @@ import java.util.*;
 public abstract class FormattedOutputter {
     protected ObjectMapper objectMapper = new ObjectMapper();
     protected List<String> propertyKeys;
-    public abstract String outputHeader(Dataset page);
-    public abstract String outputRows(Dataset page);
-    public abstract String outputFooter(Dataset page);
-
-    public String output(Dataset page, boolean emitHeader) {
-        assertPropertyConsistency(page);
-        StringBuilder output = new StringBuilder();
-        if (emitHeader) {
-            output.append(outputHeader(page));
-        }
-        output.append(outputRows(page));
-        output.append(outputFooter(page));
-        return output.toString();
-    }
+    public abstract void outputHeader(Dataset page, StringBuilder output);
+    public abstract void outputRows(Dataset page, StringBuilder output);
+    public abstract void outputFooter(Dataset page, StringBuilder output);
 
     protected void assertPropertyConsistency(Dataset dataset){
         Set<String> foundKeys = dataset.getSchema().getPropertyMap().keySet();

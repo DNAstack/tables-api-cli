@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ga4gh.dataset.cli.cmd.Main;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -14,10 +13,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,7 +25,8 @@ public class TestCmd {
     private static final String TEST_DATASET_ID = "subjects";
 
     private static final String EXPECTED_LIST_OUTPUT_FILE = "list/expected_list_output.csv";
-    private static final String EXPECTED_GET_OUTPUT_FILE = "get/expected_get_output.csv";
+    private static final String EXPECTED_GET_OUTPUT_CSV = "get/expected_get_output.csv";
+    private static final String EXPECTED_GET_OUTPUT_JSON = "get/expected_get_output.json";
     private static final String CSV_TO_IMPORT = "get/expected_get_output.csv";
     private static final String EXPECTED_IMPORT_OUTPUT="dataset_in_a_bucket/";
     private static final String SCHEMA_TO_IMPORT = "dataset_in_a_bucket/dataset/schema/ca.personalgenomes.schema.Subject";
@@ -81,7 +78,18 @@ public class TestCmd {
 
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
-        String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_FILE);
+        String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_CSV);
+        assertEquals(expectedOutput, capturedStdout);
+    }
+
+    @Test
+    @DisplayName("Get dataset as JSON works")
+    void TestGetDatasetJSON(){
+        String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "json");
+
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+
+        String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_JSON);
         assertEquals(expectedOutput, capturedStdout);
     }
 
