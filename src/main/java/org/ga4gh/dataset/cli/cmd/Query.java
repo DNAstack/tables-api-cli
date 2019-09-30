@@ -33,7 +33,7 @@ public class Query implements Runnable {
         DatasetSearcher datasetSearcher = new DatasetSearcher(query, false);
         Outputter outputter = outputOptions.getOutputter();
         String output = outputter.output(datasetSearcher.getPages());
-        System.out.println(output);
+        System.out.print(output);
         GSPublisher publisher = publishOptions.getPublisher();
         publisher.publish(output);
     }
