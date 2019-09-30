@@ -40,9 +40,9 @@ public class Get implements Runnable {
             datasetFetcher.setDatasetEndpoint(datasetEndpoint);
         }
         Outputter outputter = outputOptions.getOutputter();
-        GSPublisher publisher = publishOptions.getPublisher();
         String output = outputter.output(datasetFetcher.getPages());
         System.out.print(output);
+        GSPublisher publisher = publishOptions.getPublisher();
         publisher.publish(output);
     }
 }

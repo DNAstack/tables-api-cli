@@ -32,9 +32,9 @@ public class Query implements Runnable {
         authOptions.initAuth();
         DatasetSearcher datasetSearcher = new DatasetSearcher(query, false);
         Outputter outputter = outputOptions.getOutputter();
-        GSPublisher publisher = publishOptions.getPublisher();
         String output = outputter.output(datasetSearcher.getPages());
         System.out.println(output);
+        GSPublisher publisher = publishOptions.getPublisher();
         publisher.publish(output);
     }
 }

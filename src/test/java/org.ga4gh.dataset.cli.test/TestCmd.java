@@ -72,12 +72,9 @@ public class TestCmd {
     }
 
     @Test
-    @DisplayName("Get dataset works")
-    void TestGetDataset(){
+    @DisplayName("Get dataset as CSV works")
+    void TestGetDatasetCSV(){
         String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "csv");
-
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_CSV);
         assertEquals(expectedOutput, capturedStdout);
     }
@@ -86,9 +83,6 @@ public class TestCmd {
     @DisplayName("Get dataset as JSON works")
     void TestGetDatasetJSON(){
         String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "json");
-
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_JSON);
         assertEquals(expectedOutput, capturedStdout);
     }
