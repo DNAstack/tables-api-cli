@@ -21,6 +21,7 @@ public class TableOutputter extends FormattedOutputter {
 
     @Override
     public void outputHeader(Dataset page, StringBuilder output) {
+        assertPropertyConsistency(page);
         asciiTable.addRow(propertyKeys).setPaddingLeftRight(1);
         asciiTable.addRule();
         output.append(asciiTable.render()).append(String.format("%n"));
