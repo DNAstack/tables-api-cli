@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.ga4gh.dataset.cli.OutputOptions;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
+import org.ga4gh.dataset.cli.util.GCSPublisher;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Outputter implements Closeable {
 
@@ -36,21 +38,20 @@ public class Outputter implements Closeable {
                 break;
             case TABLE:
                 this.formattedOutputter = new TableOutputter();
+                break;
+            default:
+                throw new RuntimeException("No supported outputter found.");
         }
     }
 
-    public String output(Iterable<Dataset> dataset) {
-        boolean firstPage = true;
+    public String output(Dataset dataset, boolean firstPage) {
         StringBuilder output = new StringBuilder();
-        for (Dataset page : dataset) {
-            if (firstPage) {
-                this.formattedOutputter.outputHeader(page, output);
-                firstPage = false;
-            }
-            this.formattedOutputter.outputRows(page, output);
-            if (page.getPagination() == null || page.getPagination().getNextPageUrl() == null) {
-                this.formattedOutputter.outputFooter(page, output);
-            }
+        if (firstPage) {
+            this.formattedOutputter.outputHeader(dataset, output);
+        }
+        this.formattedOutputter.outputRows(dataset, output);
+        if (dataset.getPagination() == null || dataset.getPagination().getNextPageUrl() == null) {
+            this.formattedOutputter.outputFooter(dataset, output);
         }
         return output.toString();
     }

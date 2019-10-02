@@ -4,6 +4,7 @@ import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.LoggingOptions;
 import org.ga4gh.dataset.cli.OutputOptions;
 import org.ga4gh.dataset.cli.PublishOptions;
+import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import org.ga4gh.dataset.cli.util.DatasetSearcher;
 import org.ga4gh.dataset.cli.util.GCSPublisher;
 import org.ga4gh.dataset.cli.util.outputter.Outputter;
@@ -31,9 +32,13 @@ public class Query implements Runnable {
         authOptions.initAuth();
         DatasetSearcher datasetSearcher = new DatasetSearcher(query, false);
         Outputter outputter = outputOptions.getOutputter();
-        String output = outputter.output(datasetSearcher.getPages());
-        System.out.print(output);
         GCSPublisher publisher = publishOptions.getPublisher();
-        publisher.publish(output);
+        int pageNum = 0;
+        for (Dataset dataset : datasetSearcher.getPages()) {
+            String pageOutput = outputter.output(dataset, pageNum == 0);
+            publisher.publish(dataset, pageNum);
+            System.out.print(pageOutput);
+            pageNum++;
+        }
     }
 }
