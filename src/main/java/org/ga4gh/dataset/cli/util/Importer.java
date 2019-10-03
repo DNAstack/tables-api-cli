@@ -2,7 +2,7 @@ package org.ga4gh.dataset.cli.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ga4gh.dataset.cli.ga4gh.DatasetInfo;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+//@Slf4j
 public class Importer implements Closeable {
 
     private static final String DATASETS_FILE = "datasets";

@@ -16,11 +16,13 @@ public class DatasetFetcher {
     private String datasetEndpointTemplate = DATASET_GET_ENDPOINT_TEMPLATE;
     private final String datasetId;
     private final boolean recurseRefs;
+    protected final String accessToken;
 
 
-    public DatasetFetcher(String datasetId, boolean recursePropertyRefs){
+    public DatasetFetcher(String datasetId, boolean recursePropertyRefs, String accessToken){
         this.datasetId = datasetId;
         this.recurseRefs = recursePropertyRefs;
+        this.accessToken = accessToken;
     }
 
     public void setDatasetEndpoint(String endpoint){
@@ -79,15 +81,15 @@ public class DatasetFetcher {
                     @Override
                     public Dataset next() {
                         if(currentPage == null) {
-                            currentPage = HttpUtils.getAs(getAbsoluteUrl(datasetId), Dataset.class);
+                            currentPage = HttpUtils.getAs(getAbsoluteUrl(datasetId), Dataset.class, accessToken);
                         }else if(currentPage.getPagination() == null || currentPage.getPagination().getNextPageUrl() == null){
                             return null;
                         } else if(currentPage.getPagination().getNextPageUrl() != null){
-                            currentPage = HttpUtils.getAs(getAbsoluteUrl(currentPage.getPagination().getNextPageUrl()), Dataset.class);
+                            currentPage = HttpUtils.getAs(getAbsoluteUrl(currentPage.getPagination().getNextPageUrl()), Dataset.class, accessToken);
                         }
 
                         if(currentPage.getSchema().getRef() != null){
-                            currentPage.setSchema(HttpUtils.getAs(getAbsoluteUrl(currentPage.getSchema().getRef()), Schema.class));
+                            currentPage.setSchema(HttpUtils.getAs(getAbsoluteUrl(currentPage.getSchema().getRef()), Schema.class, accessToken));
                             currentPage.getSchema().setPropertyMap(resolveRefs(currentPage.getSchema().getPropertyMap()));
                         }
                         return currentPage;

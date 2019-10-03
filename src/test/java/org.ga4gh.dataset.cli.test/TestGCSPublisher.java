@@ -13,8 +13,8 @@ public class TestGCSPublisher {
     public void parseGCSUri() {
         String destination = "gs://test-bucket/datasets/test-blob";
         GCSPublisher publisher = new GCSPublisher(destination);
-        assert publisher.getBucket().equals("test-bucket/datasets");
-        assert publisher.getBlob().equals("test-blob");
+        assert publisher.getBucket().equals("test-bucket");
+        assert publisher.getBlob().equals("datasets/test-blob");
     }
 
     //TODO: Add tests for Page 0 and LastPage, or make this test better

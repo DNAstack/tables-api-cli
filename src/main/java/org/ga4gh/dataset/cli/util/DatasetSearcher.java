@@ -12,8 +12,9 @@ public class DatasetSearcher extends DatasetFetcher {
     private final String queryJson;
 
 
-    public DatasetSearcher(String query, boolean recursePropertyRefs){
-        super(null, recursePropertyRefs);
+    public DatasetSearcher(String query, boolean recursePropertyRefs, String accessToken){
+        //TODO: accessToken here
+        super(null, recursePropertyRefs, accessToken);
         this.queryJson = getQueryJson(query);
     }
 
@@ -48,15 +49,15 @@ public class DatasetSearcher extends DatasetFetcher {
                     @Override
                     public Dataset next() {
                         if(currentPage == null) {
-                            currentPage = HttpUtils.postAs(getSearchUrl(), queryJson, Dataset.class);
+                            currentPage = HttpUtils.postAs(getSearchUrl(), queryJson, Dataset.class, accessToken);
                         }else if(currentPage.getPagination() == null || currentPage.getPagination().getNextPageUrl() == null){
                             return null;
                         } else if(currentPage.getPagination().getNextPageUrl() != null){
-                            currentPage = HttpUtils.getAs(getAbsoluteUrl(currentPage.getPagination().getNextPageUrl()), Dataset.class);
+                            currentPage = HttpUtils.getAs(getAbsoluteUrl(currentPage.getPagination().getNextPageUrl()), Dataset.class, accessToken);
                         }
 
                         if(currentPage.getSchema().getRef() != null){
-                            currentPage.setSchema(HttpUtils.getAs(getAbsoluteUrl(currentPage.getSchema().getRef()), Schema.class));
+                            currentPage.setSchema(HttpUtils.getAs(getAbsoluteUrl(currentPage.getSchema().getRef()), Schema.class, accessToken));
                             currentPage.getSchema().setPropertyMap(resolveRefs(currentPage.getSchema().getPropertyMap()));
                         }
                         return currentPage;

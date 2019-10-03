@@ -13,6 +13,8 @@ public class Main implements Runnable {
                 .addSubcommand(new Get())
                 .addSubcommand(new Import())
                 .addSubcommand(new Query())
+                .addSubcommand(new Login())
+                .addSubcommand(new GetAccess())
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);
     }

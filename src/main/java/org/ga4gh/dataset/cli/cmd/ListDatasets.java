@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.LoggingOptions;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 import static java.util.Comparator.comparing;
 
-@Slf4j
+//@Slf4j
 @Command(name = "list", description = "List datasets",  requiredOptionMarker='*', sortOptions = false)
 public class ListDatasets implements Runnable {
 

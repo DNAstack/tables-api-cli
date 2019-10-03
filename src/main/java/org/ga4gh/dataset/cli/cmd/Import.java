@@ -2,7 +2,7 @@ package org.ga4gh.dataset.cli.cmd;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 @CommandLine.Command(name = "import", description = "Import dataset (*=required argument)", requiredOptionMarker='*', sortOptions = false)
-@Slf4j
+//@Slf4j
 public class Import implements Runnable{
     @CommandLine.Mixin
     private LoggingOptions loggingOptions;
