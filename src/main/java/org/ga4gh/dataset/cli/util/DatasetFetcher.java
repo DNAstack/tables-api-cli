@@ -22,7 +22,11 @@ public class DatasetFetcher {
     public DatasetFetcher(String datasetId, boolean recursePropertyRefs, String accessToken){
         this.datasetId = datasetId;
         this.recurseRefs = recursePropertyRefs;
-        this.accessToken = accessToken;
+        if (accessToken == null || accessToken.isEmpty()) {
+            this.accessToken = null;
+        } else {
+            this.accessToken = accessToken;
+        }
     }
 
     public void setDatasetEndpoint(String endpoint){

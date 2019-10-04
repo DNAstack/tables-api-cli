@@ -166,9 +166,4 @@ public class HttpUtils {
             throw new UncheckedIOException(ex);
         }
     }
-
-    private static OkHttpClient getClient() {
-
-    }
-
 }

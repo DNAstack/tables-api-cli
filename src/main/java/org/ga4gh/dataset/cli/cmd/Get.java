@@ -33,13 +33,18 @@ public class Get implements Runnable {
             required=false)
     private String datasetEndpoint;
 
+    @Option(names = {"--access-token"},
+            description = "Custom access token",
+            required=false)
+    private String customAccessToken;
+
     @Override
     public void run() {
         //loggingOptions.setupLogging();
         authOptions.initAuth();
         final ObjectMapper jsonMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                 false);
-        String accessToken = ContextUtil.getAccessToken();
+        String accessToken = customAccessToken == null ? ContextUtil.getAccessToken() : customAccessToken;
         DatasetFetcher datasetFetcher = new DatasetFetcher(datasetId, false, accessToken);
         if(datasetEndpoint != null){
             datasetFetcher.setDatasetEndpoint(datasetEndpoint);

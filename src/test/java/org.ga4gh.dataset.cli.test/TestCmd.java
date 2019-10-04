@@ -74,7 +74,7 @@ public class TestCmd {
     @Test
     @DisplayName("Get dataset as CSV works")
     void TestGetDatasetCSV(){
-        String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "csv");
+        String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "csv", "--access-token", "");
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_CSV);
         assertEquals(expectedOutput, capturedStdout);
     }
@@ -82,7 +82,7 @@ public class TestCmd {
     @Test
     @DisplayName("Get dataset as JSON works")
     void TestGetDatasetJSON(){
-        String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "json");
+        String capturedStdout = runCommand("get", "--username", "", "--password", "", "--api-url", API_URL, "-I", TEST_DATASET_ID, "-o", "json", "--access-token", "");
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_JSON);
         assertEquals(expectedOutput, capturedStdout);
     }

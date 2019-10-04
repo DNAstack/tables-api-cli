@@ -36,7 +36,6 @@ public class ContextUtil {
 
     public static String getAccessToken() {
         String path = System.getenv("HOME") + "/.dataset-api-cli";
-        //YAMLMapper yamlMapper = new YAMLMapper();
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         TokenData tokenData;
         try {
