@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 //@Slf4j
 public class HttpUtils {
@@ -21,7 +22,10 @@ public class HttpUtils {
         OkHttpClient httpClient = new OkHttpClient.Builder().authenticator((route, response) -> {
             String credential = Credentials.basic(username, password);
             return response.request().newBuilder().header("Authorization", credential).build();
-        }).build();
+            })
+            .connectTimeout(10, TimeUnit.MINUTES)
+            .readTimeout(10, TimeUnit.MINUTES)
+            .build();
         return httpClient;
     }
 
@@ -161,6 +165,10 @@ public class HttpUtils {
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
+    }
+
+    private static OkHttpClient getClient() {
+
     }
 
 }
