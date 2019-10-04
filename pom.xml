@@ -36,15 +36,11 @@
     </scm>
 
     <dependencies>
-        <!-- Lord forgive me-->
         <dependency>
-            <groupId>com.dnastack</groupId>
-            <artifactId>ddap-cli-1.0-SNAPSHOT.jar</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../ddap-cli/target/ddap-cli-1.0-SNAPSHOT.jar</systemPath>
+            <groupId>com.dnastack.ddap</groupId>
+            <artifactId>ddap-cli</artifactId>
+            <version>1.0-15-g8298871</version>
         </dependency>
-        <!-- -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
