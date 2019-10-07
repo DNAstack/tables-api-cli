@@ -1,6 +1,5 @@
 package org.ga4gh.dataset.cli.test;
 
-import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import org.ga4gh.dataset.cli.ga4gh.Page;
 import org.ga4gh.dataset.cli.util.GCSPublisher;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +14,24 @@ public class TestGCSPublisher {
         GCSPublisher publisher = new GCSPublisher(destination);
         assert publisher.getBucket().equals("test-bucket");
         assert publisher.getBlob().equals("datasets/test-blob");
+    }
+
+    @Test
+    public void generateNewRelativePagination() {
+        final int pageNum = 2;
+        final String destination = "gs://example/datasets/test";
+        final String previousUrl = "https://example.com/datasets/test_1";
+        final String nextUrl = "https://example.com/datasets/test_3";
+        final String newPreviousUrl = "test.1";
+        final String newNextUrl = "test.3";
+        final Page originalPagination = new Page();
+        final GCSPublisher publisher = new GCSPublisher(destination);
+        originalPagination.setPrevPageUrl(previousUrl);
+        originalPagination.setNextPageUrl(nextUrl);
+
+        Page newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
+        assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
+        assert newPagination.getNextPageUrl().equals(newNextUrl);
     }
 
     //TODO: Add tests for Page 0 and LastPage, or make this test better
