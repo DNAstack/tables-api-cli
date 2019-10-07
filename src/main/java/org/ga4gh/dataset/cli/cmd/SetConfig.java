@@ -16,12 +16,12 @@ public class SetConfig implements Runnable {
     @Mixin
     private AuthOptions authOptions;
 
-    //private Config userConfig;
+    private Config userConfig;
 
     @Override
     public void run() {
         authOptions.initAuth();
-        /*userConfig = ConfigUtil.getUserConfig();
+        userConfig = ConfigUtil.getUserConfig();
 
         if (authOptions.getApiUrl() != null) {
             userConfig.setApiUrl(authOptions.getApiUrl());
@@ -31,7 +31,7 @@ public class SetConfig implements Runnable {
         }
         if (authOptions.getPassword() != null) {
             userConfig.setPassword(authOptions.getPassword());
-        }*/
+        }
 
         //save any changed config options.
         ConfigUtil.save(authOptions.getUserConfig());

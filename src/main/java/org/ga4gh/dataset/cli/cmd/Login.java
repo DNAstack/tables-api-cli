@@ -16,7 +16,9 @@ import feign.Feign;
 import feign.Logger;
 import feign.jackson.JacksonDecoder;
 import feign.okhttp.OkHttpClient;
+import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.util.ContextUtil;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -38,7 +40,8 @@ public class Login implements Runnable {
 
     //@Mixin private LoggingOptions loggingOptions;
 //    @Mixin private OutputOptions outputOptions;
-//    @Mixin private AuthOptions authOptions;
+    @CommandLine.Mixin
+    private AuthOptions authOptions;
 //    @Mixin private PublishOptions publishOptions;
 
     @Option(
@@ -86,7 +89,7 @@ public class Login implements Runnable {
     @Override
     public void run() {
         //loggingOptions.setupLogging();
-//        authOptions.initAuth();
+        authOptions.initAuth();
         if (performIdentityLogin()) {
             getSearchAccess();
         }
