@@ -6,6 +6,9 @@ import org.ga4gh.dataset.cli.ga4gh.Dataset;
 
 import java.util.*;
 
+/**
+ * For outputting datasets to the terminal in a "pretty" format (ASCII Table).
+ */
 public class PrettyPrintDatasetOutputter extends DatasetOutputter {
 
     private AsciiTable asciiTable;
@@ -36,6 +39,11 @@ public class PrettyPrintDatasetOutputter extends DatasetOutputter {
     }
 
     @Override
+    /**
+     * Because of how the table rendering functions, we can't render until we have all elements.
+     * (for sizing concerns). Thus, we render at the end, but this also means that we don't have
+     * a outputtable string until all datasets have been processed (bad).
+     */
     public void outputFooter(Dataset page, StringBuilder output) {
         asciiTable.addRule();
         output.append(asciiTable.render());
