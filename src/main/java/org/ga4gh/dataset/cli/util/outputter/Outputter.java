@@ -6,15 +6,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.ga4gh.dataset.cli.OutputOptions;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
-import org.ga4gh.dataset.cli.util.GCSPublisher;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class Outputter implements Closeable {
 
@@ -22,22 +19,22 @@ public class Outputter implements Closeable {
 
     private AsciiTable asciiTable;
     private CSVPrinter csvPrinter;
-    private FormattedOutputter formattedOutputter;
+    private DatasetOutputter formattedOutputter;
 
     public Outputter(OutputOptions.OutputMode outputMode) {
         this.outputMode = outputMode;
         switch (outputMode) {
             case JSON:
-                this.formattedOutputter = new JsonOutputter();
+                this.formattedOutputter = new JsonDatasetOutputter();
                 break;
             case CSV:
-                this.formattedOutputter = new CharacterSeparatedOutputter(",");
+                this.formattedOutputter = new CharacterSeparatedDatasetOutputter(",");
                 break;
             case TSV:
-                this.formattedOutputter = new CharacterSeparatedOutputter("\t");
+                this.formattedOutputter = new CharacterSeparatedDatasetOutputter("\t");
                 break;
             case TABLE:
-                this.formattedOutputter = new TableOutputter();
+                this.formattedOutputter = new PrettyPrintDatasetOutputter();
                 break;
             default:
                 throw new RuntimeException("No supported outputter found.");
@@ -49,10 +46,12 @@ public class Outputter implements Closeable {
         if (firstPage) {
             this.formattedOutputter.outputHeader(dataset, output);
         }
+
         this.formattedOutputter.outputRows(dataset, output);
         if (dataset.getPagination() == null || dataset.getPagination().getNextPageUrl() == null) {
             this.formattedOutputter.outputFooter(dataset, output);
         }
+
         return output.toString();
     }
 

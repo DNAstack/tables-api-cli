@@ -3,13 +3,9 @@ package org.ga4gh.dataset.cli.util.outputter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
 
-import java.util.List;
+public class JsonDatasetOutputter extends DatasetOutputter {
 
-public class JsonOutputter extends FormattedOutputter {
-
-    private boolean firstPage = true;
-
-    JsonOutputter() {
+    JsonDatasetOutputter() {
     }
 
     @Override

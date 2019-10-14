@@ -5,11 +5,11 @@ import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import java.util.List;
 import java.util.Map;
 
-public class CharacterSeparatedOutputter extends FormattedOutputter {
+public class CharacterSeparatedDatasetOutputter extends DatasetOutputter {
 
     private String delimiter;
 
-    CharacterSeparatedOutputter(String delimiter) {
+    CharacterSeparatedDatasetOutputter(String delimiter) {
         this.delimiter = delimiter;
     }
 

@@ -7,12 +7,12 @@ import org.ga4gh.dataset.cli.ga4gh.Dataset;
 
 import java.util.*;
 
-public abstract class FormattedOutputter {
+public abstract class DatasetOutputter {
     protected ObjectMapper objectMapper = new ObjectMapper();
     protected List<String> propertyKeys;
-    public abstract void outputHeader(Dataset page, StringBuilder output);
-    public abstract void outputRows(Dataset page, StringBuilder output);
-    public abstract void outputFooter(Dataset page, StringBuilder output);
+    protected abstract void outputHeader(Dataset page, StringBuilder output);
+    protected abstract void outputRows(Dataset page, StringBuilder output);
+    protected abstract void outputFooter(Dataset page, StringBuilder output);
 
     protected void assertPropertyConsistency(Dataset dataset){
         Set<String> foundKeys = dataset.getSchema().getPropertyMap().keySet();

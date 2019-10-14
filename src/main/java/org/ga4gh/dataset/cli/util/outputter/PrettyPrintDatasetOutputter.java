@@ -6,11 +6,11 @@ import org.ga4gh.dataset.cli.ga4gh.Dataset;
 
 import java.util.*;
 
-public class TableOutputter extends FormattedOutputter {
+public class PrettyPrintDatasetOutputter extends DatasetOutputter {
 
     private AsciiTable asciiTable;
 
-    TableOutputter() {
+    PrettyPrintDatasetOutputter() {
         CWC_LongestLine cwc = new CWC_LongestLine();
         cwc.add(4, 100);
         asciiTable = new AsciiTable();
@@ -24,7 +24,6 @@ public class TableOutputter extends FormattedOutputter {
         assertPropertyConsistency(page);
         asciiTable.addRow(propertyKeys).setPaddingLeftRight(1);
         asciiTable.addRule();
-        output.append(asciiTable.render()).append(String.format("%n"));
     }
 
     @Override
@@ -34,14 +33,12 @@ public class TableOutputter extends FormattedOutputter {
             List<String> row = getRow(propertyKeys, object);
             asciiTable.addRow(row).setPaddingLeftRight(1);
         }
-        String[] asciiRows = asciiTable.renderAsArray();
-        String[] rows = Arrays.copyOfRange(asciiRows, 3, asciiRows.length);
-        output.append(String.join(String.format("%n"), rows));
     }
 
     @Override
     public void outputFooter(Dataset page, StringBuilder output) {
         asciiTable.addRule();
+        output.append(asciiTable.render());
         output.append(String.format("%n"));
     }
 }
