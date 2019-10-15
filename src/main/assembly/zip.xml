@@ -10,7 +10,6 @@
     <files>
         <file>
             <source>${project.build.directory}/${project.artifactId}-${project.version}-executable.jar</source>
-            <outputDirectory>dataset-api-cli-${project.version}</outputDirectory>
             <destName>dataset-cli.jar</destName>
         </file>
     </files>

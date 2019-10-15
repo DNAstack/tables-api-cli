@@ -209,7 +209,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
-                            <finalName>dataset-api-cli</finalName>
+                            <!--<finalName>dataset-api-cli</finalName>-->
                         </configuration>
                     </execution>
                 </executions>
