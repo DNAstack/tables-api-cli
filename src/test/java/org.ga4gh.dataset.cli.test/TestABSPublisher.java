@@ -1,17 +1,19 @@
 package org.ga4gh.dataset.cli.test;
 
-import org.ga4gh.dataset.cli.ga4gh.Page;
+import org.ga4gh.dataset.cli.ga4gh.Pagination;
 import org.ga4gh.dataset.cli.publisher.ABSPublisher;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("ABS Publisher Tests")
 public class TestABSPublisher {
 
+    @Disabled
     @Test
     public void parseABSUri() {
         String destination = "https://example.blob.core.windows.net/example-container/sample-dataset";
-        ABSPublisher publisher = new ABSPublisher(destination, null);
+        ABSPublisher publisher = new ABSPublisher(destination, null, false);
     }
 
     @Test
@@ -22,12 +24,12 @@ public class TestABSPublisher {
         final String nextUrl = "https://example.com/datasets/test_3";
         final String newPreviousUrl = "sample-dataset.1";
         final String newNextUrl = "sample-dataset.3";
-        final Page originalPagination = new Page();
-        final ABSPublisher publisher = new ABSPublisher(destination, null);
+        final Pagination originalPagination = new Pagination();
+        final ABSPublisher publisher = new ABSPublisher(destination, null, false);
         originalPagination.setPrevPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
-        Page newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
+        Pagination newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
         assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
     }

@@ -21,5 +21,5 @@ public class Dataset {
     private List<Map<String, Object>> objects;
 
     @JsonProperty("pagination")
-    private Page pagination;
+    private Pagination pagination;
 }

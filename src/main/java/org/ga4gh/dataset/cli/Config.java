@@ -35,6 +35,13 @@ public class Config {
         auth.setAbsAccountKey(absAccountKey);
     }
 
+    public void getAbsSASDelegationKey(String absSASDelegationKey) {
+        if (auth == null) {
+            auth = new Auth();
+        }
+        auth.setAbsSASDelegationKey(absSASDelegationKey);
+    }
+
     public String getUsername() {
         return auth == null ? null : auth.getUsername();
     }
@@ -49,5 +56,6 @@ public class Config {
         private String username;
         private String password;
         private String absAccountKey;
+        private String absSASDelegationKey;
     }
 }

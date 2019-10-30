@@ -1,9 +1,10 @@
 package org.ga4gh.dataset.cli.publisher;
 
-import org.ga4gh.dataset.cli.AuthOptions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ga4gh.dataset.cli.Config;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
-import org.ga4gh.dataset.cli.ga4gh.Page;
+import org.ga4gh.dataset.cli.ga4gh.Pagination;
 
 public abstract class Publisher {
 
@@ -21,9 +22,9 @@ public abstract class Publisher {
 
     abstract String getBlobName(String destination);
 
-    public Page getAbsolutePagination(Page oldPagination, int pageNum) {
+    public Pagination getAbsolutePagination(Pagination oldPagination, int pageNum) {
         final String blobName = this.blob.substring(this.blob.lastIndexOf('/') + 1);
-        Page newPagination = new Page();
+        Pagination newPagination = new Pagination();
         if (pageNum != 0) {
             String prevPage = blobName;
             if (pageNum > 1) {
@@ -36,5 +37,14 @@ public abstract class Publisher {
             newPagination.setNextPageUrl(nextPage);
         }
         return newPagination;
+    }
+
+    public String toString(Dataset dataset) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(dataset);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Unable to process dataset JSON", e);
+        }
     }
 }

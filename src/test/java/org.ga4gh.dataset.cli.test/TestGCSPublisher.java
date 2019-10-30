@@ -1,6 +1,6 @@
 package org.ga4gh.dataset.cli.test;
 
-import org.ga4gh.dataset.cli.ga4gh.Page;
+import org.ga4gh.dataset.cli.ga4gh.Pagination;
 import org.ga4gh.dataset.cli.publisher.GCSPublisher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,12 +24,12 @@ public class TestGCSPublisher {
         final String nextUrl = "https://example.com/datasets/test_3";
         final String newPreviousUrl = "test.1";
         final String newNextUrl = "test.3";
-        final Page originalPagination = new Page();
+        final Pagination originalPagination = new Pagination();
         final GCSPublisher publisher = new GCSPublisher(destination, null);
         originalPagination.setPrevPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
-        Page newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
+        Pagination newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
         assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
     }
@@ -43,12 +43,12 @@ public class TestGCSPublisher {
         final String nextUrl = "https://example.com/datasets/test_3";
         final String newPreviousUrl = "https://storage.cloud.google.com/example/datasets/test.1";
         final String newNextUrl = "https://storage.cloud.google.com/example/datasets/test.3";
-        final Page originalPagination = new Page();
+        final Pagination originalPagination = new Pagination();
         final GCSPublisher publisher = new GCSPublisher(destination, null);
         originalPagination.setPrevPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
-        Page newPagination = publisher.getNewPagination(originalPagination, pageNum);
+        Pagination newPagination = publisher.getNewPagination(originalPagination, pageNum);
         assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
     }

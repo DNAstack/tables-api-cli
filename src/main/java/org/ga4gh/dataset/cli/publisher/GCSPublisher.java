@@ -3,11 +3,9 @@ package org.ga4gh.dataset.cli.publisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.*;
-import org.ga4gh.dataset.cli.AuthOptions;
 import org.ga4gh.dataset.cli.Config;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
-import org.ga4gh.dataset.cli.ga4gh.Page;
-import org.ga4gh.dataset.cli.publisher.Publisher;
+import org.ga4gh.dataset.cli.ga4gh.Pagination;
 
 public class GCSPublisher extends Publisher {
 
@@ -42,8 +40,8 @@ public class GCSPublisher extends Publisher {
      * @param oldPagination The original pagination information
      * @param pageNum The current page (for determining prev/next page URLs)
      */
-    public Page getNewPagination(Page oldPagination, int pageNum) {
-        Page newPagination = new Page();
+    public Pagination getNewPagination(Pagination oldPagination, int pageNum) {
+        Pagination newPagination = new Pagination();
         if (pageNum != 0) {
             String prevPage = String.format("%s/%s/%s", this.GCS_URL, this.bucket, this.blob);
             if (pageNum > 1) {
@@ -68,13 +66,7 @@ public class GCSPublisher extends Publisher {
         modifiedDataset.setSchema(dataset.getSchema());
         modifiedDataset.setObjects(dataset.getObjects());
         modifiedDataset.setPagination(getAbsolutePagination(dataset.getPagination(), pageNum));
-        ObjectMapper mapper = new ObjectMapper();
-        String datasetJson;
-        try {
-            datasetJson = mapper.writeValueAsString(modifiedDataset);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Unable to process dataset JSON", e);
-        }
+        String datasetJson = toString(modifiedDataset);
 
         String blobPage = this.blob + (pageNum == 0 ? "" :  "." + pageNum);
         Storage storage = StorageOptions.getDefaultInstance().getService();

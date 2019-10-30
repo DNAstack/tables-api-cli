@@ -8,19 +8,59 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.*;
 import org.ga4gh.dataset.cli.Config;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
+import org.ga4gh.dataset.cli.ga4gh.Pagination;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.time.Instant;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
 
 public class ABSPublisher extends Publisher {
 
     private final String account;
+    private final boolean generateSASPages;
 
-    public ABSPublisher(String destination, Config.Auth auth) {
+    public ABSPublisher(String destination, Config.Auth auth, boolean generateSASPages) {
         super(destination, auth);
         this.account = getAccount(destination);
+        this.generateSASPages = generateSASPages;
+    }
+
+    private Pagination generateSASPagination(CloudBlobContainer container, Pagination pagination) {
+        Pagination SASPagination = new Pagination();
+        SharedAccessBlobPolicy blobPolicy = new SharedAccessBlobPolicy();
+        blobPolicy.setPermissions(EnumSet.of(SharedAccessBlobPermissions.READ));
+        blobPolicy.setSharedAccessExpiryTime(new Date(Instant.now().toEpochMilli() + TimeUnit.HOURS.toMillis(1)));
+        if (pagination.getPrevPageUrl() != null && !pagination.getPrevPageUrl().isBlank()) {
+            try {
+                CloudBlockBlob blob = container.getBlockBlobReference(pagination.getPrevPageUrl());
+                //blob.generateUserDelegationSharedAccessSignature()
+                String sas = blob.generateSharedAccessSignature(blobPolicy, null);
+                SASPagination.setPrevPageUrl(pagination.getPrevPageUrl() + "?" + sas);
+            } catch (Exception e) {
+                //Fix me
+            }
+        }
+
+        if (pagination.getNextPageUrl() != null && !pagination.getNextPageUrl().isBlank()) {
+            try {
+                CloudBlockBlob blob = container.getBlockBlobReference(pagination.getNextPageUrl());
+                //Ensure blob exists
+                if (!blob.exists()) {
+                    blob.uploadFromByteArray(new byte[1], 0, 1);
+                }
+                //blob.generateUserDelegationSharedAccessSignature()
+                String sas = blob.generateSharedAccessSignature(blobPolicy, null);
+                SASPagination.setNextPageUrl(pagination.getNextPageUrl() + "?" + sas);
+            } catch (Exception e) {
+                //Fix me
+            }
+        }
+        return SASPagination;
     }
 
     @Override
@@ -29,14 +69,6 @@ public class ABSPublisher extends Publisher {
         modifiedDataset.setSchema(dataset.getSchema());
         modifiedDataset.setObjects(dataset.getObjects());
         modifiedDataset.setPagination(getAbsolutePagination(dataset.getPagination(), pageNum));
-        ObjectMapper mapper = new ObjectMapper();
-        String datasetJson;
-        try {
-            datasetJson = mapper.writeValueAsString(modifiedDataset);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Unable to process dataset JSON", e);
-        }
-
         String blobPage = this.blob + (pageNum == 0 ? "" :  "." + pageNum);
 
         try {
@@ -45,6 +77,11 @@ public class ABSPublisher extends Publisher {
             CloudBlobContainer container = blobClient.getContainerReference(getContainerName(destination));
             container.createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(blobPage);
+            if (generateSASPages) {
+                modifiedDataset.setPagination(generateSASPagination(container, modifiedDataset.getPagination()));
+            }
+            String datasetJson = toString(modifiedDataset);
+
             blob.uploadFromByteArray(datasetJson.getBytes(), 0, datasetJson.getBytes().length);
             //System.out.println("Published: " + blob.getUri());
         } catch (InvalidKeyException | URISyntaxException e) {
@@ -82,5 +119,10 @@ public class ABSPublisher extends Publisher {
     private String getConnectionString(String account) {
         final String STORAGE_CONNECTION_STRING_TEMPLATE = "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s";
         return String.format(STORAGE_CONNECTION_STRING_TEMPLATE, account, auth.getAbsAccountKey());
+    }
+
+    private Pagination getSASPagination(Pagination oldPagination) {
+
+        return null;
     }
 }

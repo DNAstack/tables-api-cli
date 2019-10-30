@@ -18,6 +18,9 @@ public class AuthOptions {
     @CommandLine.Option(names = "--abs-container-account-key", description = "Key required to access Azure Blob Storage Containers")
     private String absAccountKey;
 
+    @CommandLine.Option(names = "--abs-sas-delegation-key", description = "Key required to delegate access to Azure Blob Storage Containers")
+    private String absSASDelegationKey;
+
     private Config userConfig;
 
     public void initAuth(){
@@ -37,6 +40,10 @@ public class AuthOptions {
 
         if (getAbsAccountKey() != null) {
             userConfig.setAbsAccountKey(getAbsAccountKey());
+        }
+
+        if (getAbsSASDelegationKey() != null) {
+            userConfig.setAbsAccountKey(getAbsSASDelegationKey());
         }
 
         //Transiently save the changes.  Changes will NOT be written out to

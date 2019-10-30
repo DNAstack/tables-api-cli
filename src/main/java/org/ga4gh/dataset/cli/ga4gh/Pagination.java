@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Page {
+public class Pagination {
     @JsonProperty("next_page_url")
     private String nextPageUrl;
 

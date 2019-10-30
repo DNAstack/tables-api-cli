@@ -14,12 +14,16 @@ public class PublishOptions {
             description = "A valid Azure Blob Storage URI, or GCS URI of the format gs://{bucket}/{blob}")
     private String publishDestination;
 
+    @CommandLine.Option(names = "--generate-signed-page-urls",
+            description = "When publishing to Azure Blob Storage, generates signed pagination urls (1 hr expiry).")
+    private boolean generateSASPages;
+
     public Publisher getPublisher(Config.Auth auth){
         if (publishDestination == null || publishDestination.isBlank()) {
             return new NoPublisher();
         }
         if (!publishDestination.startsWith("gs://")) {
-            return new ABSPublisher(publishDestination, auth);
+            return new ABSPublisher(publishDestination, auth, generateSASPages);
         }
         return new GCSPublisher(publishDestination, auth);
     }
