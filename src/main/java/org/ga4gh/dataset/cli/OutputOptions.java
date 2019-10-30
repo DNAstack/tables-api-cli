@@ -7,11 +7,11 @@ import picocli.CommandLine;
 @Getter
 public class OutputOptions {
     public enum OutputMode{
-        JSON, TSV, CSV, TABLE;
+        JSON, TSV, CSV, TABLE, SILENT;
     }
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "Valid values: ${COMPLETION-CANDIDATES}")
-    private OutputMode outputMode = OutputMode.TABLE;
+    private OutputMode outputMode = OutputMode.SILENT;
 
     public Outputter getOutputter(){
         return new Outputter(outputMode);

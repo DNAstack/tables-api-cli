@@ -36,6 +36,9 @@ public class Outputter implements Closeable {
             case TABLE:
                 this.formattedOutputter = new PrettyPrintDatasetOutputter();
                 break;
+            case SILENT:
+                this.formattedOutputter = new NoOutputter();
+                break;
             default:
                 throw new RuntimeException("No supported outputter found.");
         }
