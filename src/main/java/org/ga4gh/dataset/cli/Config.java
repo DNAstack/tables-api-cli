@@ -28,6 +28,13 @@ public class Config {
         auth.setPassword(password);
     }
 
+    public void setAbsAccountKey(String absAccountKey) {
+        if (auth == null) {
+            auth = new Auth();
+        }
+        auth.setAbsAccountKey(absAccountKey);
+    }
+
     public String getUsername() {
         return auth == null ? null : auth.getUsername();
     }
@@ -41,5 +48,6 @@ public class Config {
     public static class Auth {
         private String username;
         private String password;
+        private String absAccountKey;
     }
 }

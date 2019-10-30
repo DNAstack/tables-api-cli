@@ -1,7 +1,7 @@
 package org.ga4gh.dataset.cli.test;
 
 import org.ga4gh.dataset.cli.ga4gh.Page;
-import org.ga4gh.dataset.cli.util.GCSPublisher;
+import org.ga4gh.dataset.cli.publisher.GCSPublisher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,7 @@ public class TestGCSPublisher {
     @Test
     public void parseGCSUri() {
         String destination = "gs://test-bucket/datasets/test-blob";
-        GCSPublisher publisher = new GCSPublisher(destination);
+        GCSPublisher publisher = new GCSPublisher(destination, null);
         assert publisher.getBucket().equals("test-bucket");
         assert publisher.getBlob().equals("datasets/test-blob");
     }
@@ -25,7 +25,7 @@ public class TestGCSPublisher {
         final String newPreviousUrl = "test.1";
         final String newNextUrl = "test.3";
         final Page originalPagination = new Page();
-        final GCSPublisher publisher = new GCSPublisher(destination);
+        final GCSPublisher publisher = new GCSPublisher(destination, null);
         originalPagination.setPrevPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
@@ -44,13 +44,12 @@ public class TestGCSPublisher {
         final String newPreviousUrl = "https://storage.cloud.google.com/example/datasets/test.1";
         final String newNextUrl = "https://storage.cloud.google.com/example/datasets/test.3";
         final Page originalPagination = new Page();
-        final GCSPublisher publisher = new GCSPublisher(destination);
+        final GCSPublisher publisher = new GCSPublisher(destination, null);
         originalPagination.setPrevPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
         Page newPagination = publisher.getNewPagination(originalPagination, pageNum);
         assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
-
     }
 }

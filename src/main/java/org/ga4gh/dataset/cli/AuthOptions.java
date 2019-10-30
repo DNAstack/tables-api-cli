@@ -15,6 +15,9 @@ public class AuthOptions {
     @CommandLine.Option(names = "--password", description = "Password for HTTP BASIC Authentication")
     private String password;
 
+    @CommandLine.Option(names = "--abs-container-account-key", description = "Key required to access Azure Blob Storage Containers")
+    private String absAccountKey;
+
     private Config userConfig;
 
     public void initAuth(){
@@ -30,6 +33,10 @@ public class AuthOptions {
         }
         if (getPassword() != null) {
             userConfig.setPassword(getPassword());
+        }
+
+        if (getAbsAccountKey() != null) {
+            userConfig.setAbsAccountKey(getAbsAccountKey());
         }
 
         //Transiently save the changes.  Changes will NOT be written out to

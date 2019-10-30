@@ -1,32 +1,32 @@
-package org.ga4gh.dataset.cli.util;
+package org.ga4gh.dataset.cli.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.*;
+import org.ga4gh.dataset.cli.AuthOptions;
+import org.ga4gh.dataset.cli.Config;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
 import org.ga4gh.dataset.cli.ga4gh.Page;
+import org.ga4gh.dataset.cli.publisher.Publisher;
 
-public class GCSPublisher {
+public class GCSPublisher extends Publisher {
 
     private final String GCS_URL = "https://storage.cloud.google.com";
 
     private final String bucket;
-    private final String blob;
 
     //TODO: If this is _only_ supposed to publish search spec compatible datasets,
     // We should either enforce or automatically append /datasets to the bucket URI.
-    public GCSPublisher(String destination) {
+    public GCSPublisher(String destination, Config.Auth auth) {
+        super(destination, auth);
         if (destination == null) {
            this.bucket = null;
-           this.blob = null;
            return;
         }
         if (!destination.startsWith("gs://")) {
             throw new RuntimeException("Publish destinations must be GCS URIs.");
         }
-        // flaky
-        this.bucket = destination.substring(destination.indexOf('/') + 2, destination.indexOf("/", destination.indexOf('/') + 2));
-        this.blob = destination.substring("gs://".length() + bucket.length() + 1);
+        this.bucket = getBucket(destination);
     }
 
     public String getBucket() {
@@ -34,7 +34,7 @@ public class GCSPublisher {
     }
 
     public String getBlob() {
-        return this.blob;
+        return blob;
     }
 
     /***
@@ -59,23 +59,7 @@ public class GCSPublisher {
         return newPagination;
     }
 
-    public Page getAbsolutePagination(Page oldPagination, int pageNum) {
-        final String blobName = this.blob.substring(this.blob.lastIndexOf('/') + 1);
-        Page newPagination = new Page();
-        if (pageNum != 0) {
-            String prevPage = blobName;
-            if (pageNum > 1) {
-                prevPage += "." + (pageNum - 1);
-            }
-            newPagination.setPrevPageUrl(prevPage);
-        }
-        if (oldPagination.getNextPageUrl() != null) {
-            String nextPage = String.format("%s.%s", blobName, pageNum + 1);
-            newPagination.setNextPageUrl(nextPage);
-        }
-        return newPagination;
-    }
-
+    @Override
     public void publish(Dataset dataset, int pageNum) {
         if (this.blob == null) {
             return;
@@ -98,6 +82,15 @@ public class GCSPublisher {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/plain").build();
         Blob blob = storage.create(blobInfo, datasetJson.getBytes());
         //TODO: Create blob ACL just for this user
+    }
+
+    @Override
+    String getBlobName(String destination) {
+        return destination.substring("gs://".length() + getBucket(destination).length() + 1);
+    }
+
+    private String getBucket(String destination) {
+        return destination.substring(destination.indexOf('/') + 2, destination.indexOf("/", destination.indexOf('/') + 2));
     }
 
 }

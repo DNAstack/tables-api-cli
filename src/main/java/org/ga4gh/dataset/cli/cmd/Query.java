@@ -1,13 +1,14 @@
 package org.ga4gh.dataset.cli.cmd;
 
 import org.ga4gh.dataset.cli.AuthOptions;
-import org.ga4gh.dataset.cli.LoggingOptions;
+import org.ga4gh.dataset.cli.Config;
 import org.ga4gh.dataset.cli.OutputOptions;
 import org.ga4gh.dataset.cli.PublishOptions;
 import org.ga4gh.dataset.cli.ga4gh.Dataset;
+import org.ga4gh.dataset.cli.util.ConfigUtil;
 import org.ga4gh.dataset.cli.util.ContextUtil;
 import org.ga4gh.dataset.cli.util.DatasetSearcher;
-import org.ga4gh.dataset.cli.util.GCSPublisher;
+import org.ga4gh.dataset.cli.publisher.Publisher;
 import org.ga4gh.dataset.cli.util.outputter.Outputter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -31,10 +32,11 @@ public class Query implements Runnable {
     public void run() {
 //        loggingOptions.setupLogging();
         //authOptions.initAuth();
+        Config.Auth auth = ConfigUtil.getUserConfig().getAuth();
         String accessToken = ContextUtil.getAccessToken();
         DatasetSearcher datasetSearcher = new DatasetSearcher(query, false, accessToken);
         Outputter outputter = outputOptions.getOutputter();
-        GCSPublisher publisher = publishOptions.getPublisher();
+        Publisher publisher = publishOptions.getPublisher(auth);
         int pageNum = 0;
         for (Dataset dataset : datasetSearcher.getPages()) {
             String pageOutput = outputter.output(dataset, pageNum == 0);
