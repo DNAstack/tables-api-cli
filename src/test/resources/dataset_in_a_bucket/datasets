@@ -1,1 +1,0 @@
-{"datasets":[{"id":"subjects","description":"Generated dataset","schema":{"$ref":"dataset/schema/ca.personalgenomes.schema.Subject"}}]}

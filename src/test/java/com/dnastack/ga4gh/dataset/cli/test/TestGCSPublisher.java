@@ -1,7 +1,7 @@
 package com.dnastack.ga4gh.dataset.cli.test;
 
-import com.dnastack.ga4gh.dataset.cli.ga4gh.Pagination;
-import com.dnastack.ga4gh.dataset.cli.publisher.GCSPublisher;
+import com.dnastack.ga4gh.tables.cli.model.Pagination;
+import com.dnastack.ga4gh.tables.cli.publisher.GCSPublisher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,27 +10,29 @@ public class TestGCSPublisher {
 
     @Test
     public void parseGCSUri() {
-        String destination = "gs://test-bucket/datasets/test-blob";
-        GCSPublisher publisher = new GCSPublisher(destination, null);
+        String destination = "gs://test-bucket/table";
+        String tableName = "example-table";
+        GCSPublisher publisher = new GCSPublisher(tableName, destination);
         assert publisher.getBucket().equals("test-bucket");
-        assert publisher.getBlob().equals("datasets/test-blob");
+        assert publisher.getBlobRoot().equals("table/" + tableName);
     }
 
     @Test
     public void generateNewRelativePagination() {
         final int pageNum = 2;
-        final String destination = "gs://example/datasets/test";
+        String destination = "gs://test-bucket/table";
+        String tableName = "example-table";
         final String previousUrl = "https://example.com/datasets/test_1";
         final String nextUrl = "https://example.com/datasets/test_3";
-        final String newPreviousUrl = "test.1";
-        final String newNextUrl = "test.3";
+        final String newPreviousUrl = "data.1";
+        final String newNextUrl = "data.3";
         final Pagination originalPagination = new Pagination();
-        final GCSPublisher publisher = new GCSPublisher(destination, null);
-        originalPagination.setPrevPageUrl(previousUrl);
+        final GCSPublisher publisher = new GCSPublisher(tableName, destination);
+        originalPagination.setPreviousPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
         Pagination newPagination = publisher.getAbsolutePagination(originalPagination, pageNum);
-        assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
+        assert newPagination.getPreviousPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
     }
 
@@ -38,18 +40,19 @@ public class TestGCSPublisher {
     @Test
     public void generateNewPagination() {
         final int pageNum = 2;
-        final String destination = "gs://example/datasets/test";
-        final String previousUrl = "https://example.com/datasets/test_1";
-        final String nextUrl = "https://example.com/datasets/test_3";
-        final String newPreviousUrl = "https://storage.cloud.google.com/example/datasets/test.1";
-        final String newNextUrl = "https://storage.cloud.google.com/example/datasets/test.3";
+        final String destination = "gs://example/table";
+        final String tableName = "test";
+        final String previousUrl = "https://example.com/table/test/data";
+        final String nextUrl = "https://example.com/table/test/data";
+        final String newPreviousUrl = "https://storage.cloud.google.com/example/table/test/data.1";
+        final String newNextUrl = "https://storage.cloud.google.com/example/table/test/data.3";
         final Pagination originalPagination = new Pagination();
-        final GCSPublisher publisher = new GCSPublisher(destination, null);
-        originalPagination.setPrevPageUrl(previousUrl);
+        final GCSPublisher publisher = new GCSPublisher(tableName, destination);
+        originalPagination.setPreviousPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 
         Pagination newPagination = publisher.getNewPagination(originalPagination, pageNum);
-        assert newPagination.getPrevPageUrl().equals(newPreviousUrl);
+        assert newPagination.getPreviousPageUrl().equals(newPreviousUrl);
         assert newPagination.getNextPageUrl().equals(newNextUrl);
     }
 }

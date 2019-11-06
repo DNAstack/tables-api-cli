@@ -1,0 +1,7 @@
+{
+	"name": "subjects",
+	"description": "Sample table describing subjects",
+	"data_model": {
+		"$ref": "data_models/ca.personalgenomes.schema.Subject"
+	}
+}

@@ -1,0 +1,1 @@
+{"tables":[{"name":"subjects","description":"Sample table describing subjects","data_model":{"$ref":"table/subjects/data_models/ca.personalgenomes.schema.Subject"}}]}

@@ -1,121 +1,144 @@
-# Dataset API Command-line Client
+# Tables API Command-line Client
 
 ## Intro
 
-**GA4GH Dataset API** is a subset of endpoints and schemas of **GA4GH Search API**, defined in [ga4gh-search-apis](https://github.com/DNAstack/ga4gh-search-apis) repository.
+**GA4GH Tables API** is a subset of endpoints and schemas of **GA4GH Search API**, defined in [ga4gh-search-apis](https://github.com/DNAstack/ga4gh-search-apis) repository.
 
 
 ## Usage
 
 ### Installation
 
-Download [dataset-api-cli-0.2.1-executable.jar](https://nexus.dnastack.com/service/local/repositories/releases/content/org/ga4gh/dataset/dataset-api-cli/0.2.1/dataset-api-cli-0.2.1-executable.jar). Make it executable (e.g.
-`chmod +x dataset-api-cli-0.2.1-executable.jar`)
+Download [tables-api-cli-executable.jar](). Make it executable (e.g.
+`chmod +x tables-api-cli-executable.jar`)
 
-Optionally create an executable `datasets` script, with contents like this:
+Optionally create an executable `tables` script, with contents like this:
 
 ```bash
 #!/bin/bash
-/path/to/dataset-api-cli-0.2.1-executable.jar $@
+/path/to/tables-api-cli-executable.jar $@
 ```
 
-In all of the examples bellow we'll use `datasets` shortcut instead of the full JAR name.
+In all of the examples bellow we'll use `tables` shortcut instead of the full JAR name.
 
 ### Configuration
 
+Initialize the configuration
 ```
-$ datasets set-config \
-  --api-url https://pgp-dataset-service.staging.dnastack.com/data/v1 \
-  --username yourname \
-  --password yourpassword
+$ tables config init
 ```
 
-This will store the config to your user path `~/.config/datasets/config.json`
-
-### List datasets
-
+List The Config values to set and their current values
 ```
-$ datasets list
-┌────────────┬───────────────────────┬────────────────────────────────────────┐
-│ Dataset ID │ Dataset description   │ Schema                                 │
-├────────────┼───────────────────────┼────────────────────────────────────────┤
-│ pgp-1      │ All Males             │ ca.personalgenomes.schemas.SubjectData │
-│ pgp-2      │ All Females           │ ca.personalgenomes.schemas.SubjectData │
-│ pgp-3      │ All Subjects over 40  │ ca.personalgenomes.schemas.SubjectData │
-│ pgp-4      │ All Subjects under 40 │ ca.personalgenomes.schemas.SubjectData │
-│ pgp-all    │ All Subjects          │ ca.personalgenomes.schemas.SubjectData │
-│ subjects   │ Subject info          │ ca.personalgenomes.schemas.Subject     │
-└────────────┴───────────────────────┴────────────────────────────────────────┘
+$ tables config list
 ```
 
-### Get dataset
-
+Set a config value
 ```
-$ datasets get -I subjects
-┌─────────┬────────────┬────────────┬─────┐
-│ id      │ birth_date │ blood_type │ sex │
-├─────────┼────────────┼────────────┼─────┤
-│ PGPC-1  │ 1973-07    │            │ F   │
-│ PGPC-10 │ 1963-11    │ A+         │ M   │
-│ PGPC-11 │ 1963-05    │            │ F   │
-│ PGPC-12 │ 1970-05    │ 0+         │ M   │
-│ PGPC-13 │ 1953-07    │ 0+         │ F   │
-│ PGPC-14 │ 1955-11    │ A-         │ F   │
-│ PGPC-15 │ 1955-11    │ B+         │ F   │
-│ PGPC-16 │ 1950-03    │ A+         │ M   │
-│ PGPC-17 │ 1957-08    │ B+         │ M   │
-│ PGPC-18 │ 1949-07    │ B+         │ F   │
-│ PGPC-19 │ 1949-07    │            │ M   │
-│ PGPC-2  │ 1974-10    │ A+         │ M   │
-
-...
-
+$ tables config set <key> <value>
 ```
 
-### Download dataset
-
-You can download a snapshot of particular dataset to local filesystem like this:
-
+Delete a config value
 ```
-$ datasets download -I subjects -o output
+$ tables config unset <key>
 ```
 
-The directory `output` will then have the following structure:
-
+Get a specific config value
 ```
-output/
-├── dataset
-│   └── subjects
-├── dataset-pages
-│   └── subjects
-│       ├── 1
-│       ├── 2
-│       ├── 3
-│       ├── 4
-│       └── 5
-├── datasets
-├── schema
-│   ├── ca.personalgenomes.schemas.BloodType
-│   ├── ca.personalgenomes.schemas.Sex
-│   └── ca.personalgenomes.schemas.Subject
-└── schemas
+$ tables config get <key>
 ```
 
-Where
+The config will be made available at `~/.config/tables/config.json`
 
-- `datasets` is the dataset index, when creating a new `output` folder, this will contain only `subjects` dataset, you can download multiple datasets into one output folder. In such case subsequent datasets will be added to the index.
-- `dataset/subjects` is JSON file containing the first page of the `subjects` dataset
-- `dataset-pages` subsequent dataset pages. These are pointed to by the URLS inside of the `pagination` element.
-- `schemas` is the schema index. Should contain all of the schemas used in the downloaded datasets
-- `schema/{id}` are JSON files containing the schemas used in the downloaded datasets
-
-
-## Release
-
-Do the following to release and upload to Nexus
+### List table
 
 ```
-mvn release:prepare
-mvn release:perform
+$ tables list
+
+┌────────────────┬─────────────────┐
+│   Table Name   │   Description   │
+├────────────────┼─────────────────┤
+│subjects        │Generated table  │
+└────────────────┴─────────────────┘
+```
+
+### Get table info
+
+```
+$ tables info subjects
+
+┌────────────────┬──────────────────────────────────────┬────────────────┐
+│   Table Name   │   Description                        │   Properties   │
+├────────────────┼──────────────────────────────────────┼────────────────┤
+│   subjects     │   Sample table describing subjects   │   birth_date   │
+├────────────────┼──────────────────────────────────────┼────────────────┤
+│                │                                      │   blood_type   │
+├────────────────┼──────────────────────────────────────┼────────────────┤
+│                │                                      │   id           │
+├────────────────┼──────────────────────────────────────┼────────────────┤
+│                │                                      │   sex          │
+└────────────────┴──────────────────────────────────────┴────────────────┘
+```
+### Get table data
+
+```
+$ tables data subjects
+
+┌────────────────┬────────────────┬─────────────┬─────────┐
+│   birth_date   │   blood_type   │   id        │   sex   │
+├────────────────┼────────────────┼─────────────┼─────────┤
+│   1973-07      │                │   PGPC-1    │   F     │
+│   1963-11      │   A+           │   PGPC-10   │   M     │
+│   1963-05      │                │   PGPC-11   │   F     │
+│   1970-05      │   0+           │   PGPC-12   │   M     │
+│   1953-07      │   0+           │   PGPC-13   │   F     │
+│   1955-11      │   A-           │   PGPC-14   │   F     │
+│   1955-11      │   B+           │   PGPC-15   │   F     │
+│   1950-03      │   A+           │   PGPC-16   │   M     │
+│   1957-08      │   B+           │   PGPC-17   │   M     │
+│   1949-07      │   B+           │   PGPC-18   │   F     │
+│   1949-07      │                │   PGPC-19   │   M     │
+│   1974-10      │   A+           │   PGPC-2    │   M     │
+│   1953-08      │                │   PGPC-20   │   F     │
+│   1960-07      │   0-           │   PGPC-21   │   M     │
+│   1949-03      │   A+           │   PGPC-22   │   M     │
+│                │   A+           │   PGPC-23   │   F     │
+│                │                │   PGPC-24   │         │
+│   1944-12      │                │   PGPC-25   │   M     │
+│   1933-08      │   A+           │   PGPC-26   │   M     │
+
+......
+```
+
+### Search
+
+```
+$ tables query -q "SELECT * FROM TABLE"
+
+
+┌────────────────┬────────────────┬─────────────┬─────────┐
+│   birth_date   │   blood_type   │   id        │   sex   │
+├────────────────┼────────────────┼─────────────┼─────────┤
+│   1973-07      │                │   PGPC-1    │   F     │
+│   1963-11      │   A+           │   PGPC-10   │   M     │
+│   1963-05      │                │   PGPC-11   │   F     │
+│   1970-05      │   0+           │   PGPC-12   │   M     │
+│   1953-07      │   0+           │   PGPC-13   │   F     │
+│   1955-11      │   A-           │   PGPC-14   │   F     │
+│   1955-11      │   B+           │   PGPC-15   │   F     │
+│   1950-03      │   A+           │   PGPC-16   │   M     │
+│   1957-08      │   B+           │   PGPC-17   │   M     │
+│   1949-07      │   B+           │   PGPC-18   │   F     │
+│   1949-07      │                │   PGPC-19   │   M     │
+│   1974-10      │   A+           │   PGPC-2    │   M     │
+│   1953-08      │                │   PGPC-20   │   F     │
+│   1960-07      │   0-           │   PGPC-21   │   M     │
+│   1949-03      │   A+           │   PGPC-22   │   M     │
+│                │   A+           │   PGPC-23   │   F     │
+│                │                │   PGPC-24   │         │
+│   1944-12      │                │   PGPC-25   │   M     │
+│   1933-08      │   A+           │   PGPC-26   │   M     │
+
+
 ```
 

@@ -1,0 +1,6 @@
+Table Name,Description,Properties
+subjects,Sample table describing subjects,birth_date
+,,birth_date
+,,blood_type
+,,id
+,,sex
