@@ -1,7 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.util.Importer;
-import com.dnastack.ga4gh.tables.cli.util.LoggingUtil;
+import com.dnastack.ga4gh.tables.cli.util.option.PublishOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
@@ -24,6 +24,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import picocli.CommandLine;
+import picocli.CommandLine.Mixin;
 
 //import lombok.extern.slf4j.Slf4j;
 
@@ -32,11 +33,8 @@ import picocli.CommandLine;
 public class Import extends BaseCmd {
 
 
-    @CommandLine.Option(
-        names = {"-n", "--table-name", "--name"},
-        description = "Output Table Name",
-        required = true)
-    private String tableName;
+    @Mixin
+    private PublishOptions publishOptions;
 
     @CommandLine.Option(
         names = {"-d", "--table-description", "--description"},
@@ -55,13 +53,6 @@ public class Import extends BaseCmd {
         description = "Input data model in JSON SCHEMA format",
         required = true)
     private String inputModel;
-
-
-    @CommandLine.Option(
-        names = {"-o", "--output-dir"},
-        description = "Set output directory",
-        required = true)
-    private String outputDir;
 
     @CommandLine.Option(names = {"-q",
         "--quiet"}, description = "If set, output messages are suppressed", required = false)
@@ -184,30 +175,31 @@ public class Import extends BaseCmd {
         csvFormat = applyFormatOptions(csvFormat);
 
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
-            Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            assertHeaderInSchema(headerMap, schema);
-            schema.getId();
-            try (Importer importer = new Importer(outputDir, tableName, description, pageSize, inputModel, schema
-                .getId(), quiet)) {
-                for (CSVRecord record : csvParser) {
-                    try {
-                        Map<String, Object> json = getJsonFromCsvRecord(headerMap, record);
-                        schema.validate(new JSONObject(objectMapper.writeValueAsString(json)));
-                        importer.addRecord(json);
-                    } catch (JsonProcessingException | ValidationException ex) {
-                        if (skipMalformedLines != null && skipMalformedLines == true) {
-                            System.err.println(
-                                "Error processing record " + record.getRecordNumber() + " -- " + ex.getMessage()
-                                    + ", skipping.");
-                        } else {
-                            throw new IllegalArgumentException(ex);
-                        }
-                    }
+            try (Importer importer = new Importer(publishOptions, description, pageSize, inputModel)) {
+                importCsvRecords(importer, schema, csvParser);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void importCsvRecords(Importer importer, Schema schema, CSVParser csvParser) {
+        Map<String, Integer> headerMap = csvParser.getHeaderMap();
+        assertHeaderInSchema(headerMap, schema);
+        for (CSVRecord record : csvParser) {
+            try {
+                Map<String, Object> json = getJsonFromCsvRecord(headerMap, record);
+                schema.validate(new JSONObject(objectMapper.writeValueAsString(json)));
+                importer.addRecord(json);
+            } catch (JsonProcessingException | ValidationException ex) {
+                if (skipMalformedLines != null && skipMalformedLines == true) {
+                    System.err.println(
+                        "Error processing record " + record.getRecordNumber() + " -- " + ex.getMessage()
+                            + ", skipping.");
+                } else {
+                    throw new IllegalArgumentException(ex);
                 }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

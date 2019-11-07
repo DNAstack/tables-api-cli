@@ -109,7 +109,7 @@ public class GCSPublisher extends Publisher {
     }
 
 
-    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)/(?<object>.+)$");
+    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)(/(?<object>.+)*)$");
 
     public String getBucket(String gsUrl) {
         Matcher matcher = GSPattern.matcher(gsUrl);

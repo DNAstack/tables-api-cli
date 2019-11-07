@@ -37,7 +37,7 @@ public class TestCmd {
     private static final String CSV_TO_IMPORT = "get/expected_get_output.csv";
     private static final String EXPECTED_IMPORT_OUTPUT = "tables_in_a_bucket/";
     private static final String EXPECTED_PUBLISH_OUTPUT = "publish/";
-    private static final String SCHEMA_TO_IMPORT = "tables_in_a_bucket/table/subjects/data_models/ca.personalgenomes.schema.Subject";
+    private static final String SCHEMA_TO_IMPORT = "ca.personalgenomes.schemas.Subject";
 
     private File getTestResource(String relativePathToFile) {
         ClassLoader classLoader = this.getClass().getClassLoader();
@@ -139,7 +139,7 @@ public class TestCmd {
                     "rwx------"))));
 
             String capturedStdout = runCommand("import",
-                "-n",
+                "-N",
                 TEST_TABLE_NAME,
                 "-i",
                 csvToImport.toString(),
@@ -147,7 +147,7 @@ public class TestCmd {
                 schemaToImport.toString(),
                 "--description",
                 "Sample table describing subjects",
-                "-o",
+                "-p",
                 outputDirPath.toString());
 
             verifyDirsAreEqual((getTestResource(EXPECTED_IMPORT_OUTPUT)).toPath(), outputDirPath);

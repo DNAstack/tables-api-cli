@@ -56,7 +56,7 @@ public class FileSystemPublisher extends Publisher {
             String filename = "data" + (pageNum == 0 ? "" : "." + pageNum);
             File destinationFile = new File(blobRoot, filename);
             destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, tableData);
+            mapper.writeValue(destinationFile, modifiedData);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

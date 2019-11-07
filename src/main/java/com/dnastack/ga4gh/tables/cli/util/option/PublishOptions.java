@@ -1,10 +1,16 @@
 package com.dnastack.ga4gh.tables.cli.util.option;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import picocli.CommandLine;
 
 @Getter
-public class PublishOptions {
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class PublishOptions implements Cloneable {
 
     @CommandLine.Option(names = {"-p", "--publish"},
         required = true,
@@ -18,4 +24,10 @@ public class PublishOptions {
     @CommandLine.Option(names = {"-N", "--publish-table-name"},
         description = "A different name to save this table to", required = true)
     private String destinationTableName;
+
+
+    @Override
+    public PublishOptions clone() {
+        return new PublishOptions(publishDestination, generateSASPages, destinationTableName);
+    }
 }
