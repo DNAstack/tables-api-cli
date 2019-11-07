@@ -36,6 +36,7 @@ public class TestCmd {
     private static final String EXPECTED_GET_OUTPUT_JSON = "get/expected_get_output.json";
     private static final String CSV_TO_IMPORT = "get/expected_get_output.csv";
     private static final String EXPECTED_IMPORT_OUTPUT = "tables_in_a_bucket/";
+    private static final String EXPECTED_PUBLISH_OUTPUT = "publish/";
     private static final String SCHEMA_TO_IMPORT = "tables_in_a_bucket/table/subjects/data_models/ca.personalgenomes.schema.Subject";
 
     private File getTestResource(String relativePathToFile) {
@@ -69,7 +70,7 @@ public class TestCmd {
     @Test
     @DisplayName("Listing tables works")
     void TestListTables() {
-        String capturedStdout = runCommand("list","--api-url", API_URL, "-o", "csv");
+        String capturedStdout = runCommand("list", "--api-url", API_URL, "-o", "csv");
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
         String expectedOutput = getTestResourceAsString(EXPECTED_LIST_OUTPUT_FILE);
@@ -149,6 +150,37 @@ public class TestCmd {
                 outputDirPath.toString());
 
             verifyDirsAreEqual((getTestResource(EXPECTED_IMPORT_OUTPUT)).toPath(), outputDirPath);
+        } catch (IOException ie) {
+            throw new UncheckedIOException(ie);
+        } finally {
+            try {
+                if (outputDirPath != null) {
+                    FileUtils.deleteDirectory(outputDirPath.toFile());
+                    if (false) {
+                        throw new IOException("");
+                    } //TEMPORARY!
+                }
+            } catch (IOException ie) {
+                throw new UncheckedIOException(ie);
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Publish To local file system works")
+    void TestPublkish() {
+        Path outputDirPath = null;
+        try {
+
+            outputDirPath = Files.createTempDirectory("testPublis_" + RandomStringUtils.randomAlphanumeric(12),
+                PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
+                    "rwx------"))));
+
+            runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-p", outputDirPath
+                .toString(), "-N", TEST_TABLE_NAME);
+            runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-p", outputDirPath
+                .toString(), "-N", TEST_TABLE_NAME);
+            verifyDirsAreEqual((getTestResource(EXPECTED_PUBLISH_OUTPUT)).toPath(), outputDirPath);
         } catch (IOException ie) {
             throw new UncheckedIOException(ie);
         } finally {

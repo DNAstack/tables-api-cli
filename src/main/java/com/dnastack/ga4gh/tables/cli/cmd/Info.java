@@ -7,7 +7,6 @@ import com.dnastack.ga4gh.tables.cli.util.TableFetcher;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.dnastack.ga4gh.tables.cli.util.option.PublishOptions;
 import com.dnastack.ga4gh.tables.cli.util.outputter.Outputter;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
@@ -26,7 +25,8 @@ public class Info extends BaseCmd {
 
     @Override
     public void runExceptionally() {
-        TableFetcher tableInfoFetcher = new TableFetcher(tableName, false, ConfigUtil.getAccessTokenOrNull());
+        TableFetcher tableInfoFetcher = new TableFetcher(tableName, false, ConfigUtil.getUserConfig()
+            .getRequestAuthorization());
         try (Outputter outputter = outputOptions.getOutputter()) {
             Publisher publisher = publishOptions.getPublisher(tableName);
             Table info = tableInfoFetcher.getInfo();

@@ -1,17 +1,19 @@
 package com.dnastack.ga4gh.tables.cli.util.option;
 
 import com.dnastack.ga4gh.tables.cli.publisher.ABSPublisher;
+import com.dnastack.ga4gh.tables.cli.publisher.FileSystemPublisher;
 import com.dnastack.ga4gh.tables.cli.publisher.GCSPublisher;
-import com.dnastack.ga4gh.tables.cli.publisher.NoPublisher;
+import com.dnastack.ga4gh.tables.cli.publisher.NoopPublisher;
 import com.dnastack.ga4gh.tables.cli.publisher.Publisher;
+import java.net.URI;
 import lombok.Getter;
 import picocli.CommandLine;
 
 @Getter
 public class PublishOptions {
 
-    @CommandLine.Option(names = {"-p", "--publish-destination"},
-        description = "A valid Azure Blob Storage URI, or GCS URI of the format gs://{bucket}/{blob}")
+    @CommandLine.Option(names = {"-p", "--publish"},
+        description = "Publish the results to a target destination. Currently Supported are [GCP,ABS,Local]. The Destination should be a valid URI depening on the location")
     private String publishDestination;
 
     @CommandLine.Option(names = "--generate-signed-page-urls",
@@ -22,17 +24,35 @@ public class PublishOptions {
         description = "A different name to save this table to")
     private String destinationTableName;
 
+
+    public boolean shouldPublish() {
+        return publishDestination != null && !publishDestination.isEmpty();
+    }
+
     public Publisher getPublisher(String tableName) {
+        if (!shouldPublish()){
+            return new NoopPublisher();
+        }
         if (destinationTableName != null) {
             tableName = destinationTableName;
         }
 
-        if (publishDestination == null || publishDestination.isBlank() || tableName == null) {
-            return new NoPublisher();
+        if (tableName == null) {
+            throw new IllegalArgumentException("Cannot publish results, no table name provided");
         }
-        if (!publishDestination.startsWith("gs://")) {
+
+        URI publishUri = URI.create(publishDestination);
+
+        //Local file
+        if (publishUri.getScheme() == null || publishUri.getScheme().equals("file://")) {
+            return new FileSystemPublisher(tableName, publishDestination);
+        } else if (publishUri.getScheme().equals("gs://")) {
+            return new GCSPublisher(tableName, publishDestination);
+        } else if (publishUri.getScheme().equals("https://") && publishUri.getHost()
+            .endsWith("blob.core.windows.net")) {
             return new ABSPublisher(tableName, publishDestination, generateSASPages);
+        } else {
+            return new NoopPublisher();
         }
-        return new GCSPublisher(tableName, publishDestination);
     }
 }

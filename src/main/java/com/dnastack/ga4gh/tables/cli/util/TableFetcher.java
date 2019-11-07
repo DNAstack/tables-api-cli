@@ -19,17 +19,13 @@ public class TableFetcher {
     private String tableEndpoint = TABLE_GET_ENDPOINT;
     private final String tableName;
     private final boolean recurseRefs;
-    protected final String accessToken;
+    protected final RequestAuthorization authorization;
 
 
-    public TableFetcher(String tableName, boolean recursePropertyRefs, String accessToken) {
+    public TableFetcher(String tableName, boolean recursePropertyRefs, RequestAuthorization authorization) {
         this.tableName = tableName;
         this.recurseRefs = recursePropertyRefs;
-        if (accessToken == null || accessToken.isEmpty()) {
-            this.accessToken = null;
-        } else {
-            this.accessToken = accessToken;
-        }
+        this.authorization = authorization;
     }
 
     public void setTableEndpoint(String endpoint) {
@@ -76,7 +72,7 @@ public class TableFetcher {
             String absoluteRefUrl = getAbsoluteUrl(refUrl, urlContext);
             LinkedHashMap<String, Object> resolvedProperties = HttpUtils
                 .getAs(absoluteRefUrl, new TypeReference<LinkedHashMap<String, Object>>() {
-                }, accessToken); //don't recurse, references at a deeper level than this won't be expanded.
+                }, authorization); //don't recurse, references at a deeper level than this won't be expanded.
             if (recurseRefs) {
                 return resolveRefs(resolvedProperties, absoluteRefUrl);
             } else {
@@ -89,7 +85,7 @@ public class TableFetcher {
 
     public Table getInfo() {
         String absoluteUrl = getInfoAbsoluteUrl();
-        Table table = HttpUtils.getAs(absoluteUrl, Table.class, accessToken);
+        Table table = HttpUtils.getAs(absoluteUrl, Table.class, authorization);
         table.setDataModel(resolveRefs(table.getDataModel(), absoluteUrl));
         return table;
     }
@@ -116,14 +112,14 @@ public class TableFetcher {
                     public TableData next() {
                         if (currentPage == null) {
                             currentUrlContext = getDataAbsoluteUrl();
-                            currentPage = HttpUtils.getAs(currentUrlContext, TableData.class, accessToken);
+                            currentPage = HttpUtils.getAs(currentUrlContext, TableData.class, authorization);
                         } else if (currentPage.getPagination() == null
                             || currentPage.getPagination().getNextPageUrl() == null) {
                             return null;
                         } else if (currentPage.getPagination().getNextPageUrl() != null) {
                             currentUrlContext = getAbsoluteUrl(currentPage.getPagination()
                                 .getNextPageUrl(), currentUrlContext);
-                            currentPage = HttpUtils.getAs(currentUrlContext, TableData.class, accessToken);
+                            currentPage = HttpUtils.getAs(currentUrlContext, TableData.class, authorization);
                         }
 
                         currentPage.setDataModel(resolveRefs(currentPage.getDataModel(), currentUrlContext));

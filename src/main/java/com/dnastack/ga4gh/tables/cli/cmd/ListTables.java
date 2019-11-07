@@ -6,7 +6,6 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.dnastack.ga4gh.tables.cli.util.outputter.Outputter;
 import okhttp3.HttpUrl;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
@@ -25,7 +24,7 @@ public class ListTables extends BaseCmd {
     private String getAbsoluteUrl() {
         String baseURL = ConfigUtil.getUserConfig().getApiUrl();
 
-        if (baseURL == null){
+        if (baseURL == null) {
             throw new IllegalArgumentException("No Tables API has been set");
         }
 
@@ -37,7 +36,7 @@ public class ListTables extends BaseCmd {
     public void runExceptionally() {
         String tableListUrl = getAbsoluteUrl();
         ListTableResponse tableList = HttpUtils
-            .getAs(tableListUrl, ListTableResponse.class, ConfigUtil.getAccessTokenOrNull());
+            .getAs(tableListUrl, ListTableResponse.class, ConfigUtil.getUserConfig().getRequestAuthorization());
         try (Outputter outputter = outputOptions.getOutputter()) {
             outputter.output(tableList);
         }

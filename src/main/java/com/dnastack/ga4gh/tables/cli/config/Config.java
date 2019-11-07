@@ -1,5 +1,6 @@
 package com.dnastack.ga4gh.tables.cli.config;
 
+import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
@@ -62,5 +63,10 @@ public class Config {
             return api != null && apiTokens != null ? apiTokens.get(api) : null;
 
         }
+    }
+
+    @JsonIgnore
+    public RequestAuthorization getRequestAuthorization() {
+        return new RequestAuthorization(getTokenOrNull(), username, password);
     }
 }

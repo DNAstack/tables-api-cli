@@ -25,7 +25,8 @@ public class Data extends BaseCmd {
 
     @Override
     public void runExceptionally() {
-        TableFetcher tableDataFetcher = new TableFetcher(tableName, false, ConfigUtil.getAccessTokenOrNull());
+        TableFetcher tableDataFetcher = new TableFetcher(tableName, false, ConfigUtil.getUserConfig()
+            .getRequestAuthorization());
         try (Outputter outputter = outputOptions.getOutputter()) {
             Publisher publisher = publishOptions.getPublisher(tableName);
             int pageNum = 0;

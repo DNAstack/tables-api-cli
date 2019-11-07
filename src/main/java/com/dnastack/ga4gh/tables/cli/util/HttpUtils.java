@@ -25,124 +25,67 @@ public class HttpUtils {
         return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    private static OkHttpClient createAuthenticatedClient() {
-        String username = ConfigUtil.getUserConfig().getUsername();
-        String password = ConfigUtil.getUserConfig().getPassword();
-        // build client with authentication information.
-        OkHttpClient httpClient = new OkHttpClient.Builder().authenticator((route, response) -> {
-            String credential = Credentials.basic(username, password);
-            return response.request().newBuilder().header("Authorization", credential).build();
-        })
-            .connectTimeout(10, TimeUnit.MINUTES)
+
+    private static OkHttpClient createClient() {
+        return new OkHttpClient.Builder().connectTimeout(10, TimeUnit.MINUTES)
             .readTimeout(10, TimeUnit.MINUTES)
             .build();
-        return httpClient;
+
+    }
+
+
+    private static String execute(Request request) {
+        OkHttpClient client = createClient();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new InvalidHttpStatusException(
+                    "Server returned unexpected status " + response.code(), response.code());
+            }
+            String json = response.body().string();
+            //  log.debug("Response JSON: "+json);
+            return json;
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
     }
 
     public static String get(String url) {
-
-        //        log.debug("GET "+url);
-        Request request = new Request.Builder().url(url).build();
-
-        OkHttpClient client = HttpUtils.createAuthenticatedClient();
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new InvalidHttpStatusException(
-                    "Server returned unexpected status " + response.code(), response.code());
-            }
-            String json = response.body().string();
-            //  log.debug("Response JSON: "+json);
-            return json;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return get(url, null);
     }
 
-    public static String get(String url, String accessToken) {
-        if (accessToken == null) {
-            return get(url);
+    public static String get(String url, RequestAuthorization authorization) {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        if (authorization != null && authorization.hasAuth()) {
+            requestBuilder.header("Authorization", authorization.getAuthorizationHeader());
         }
-        //
-        Request request = new Request.Builder().url(url).header("Authorization", "Bearer " + accessToken).build();
-
-        OkHttpClient client = HttpUtils.createAuthenticatedClient();
-        ObjectMapper objectMapper = new ObjectMapper();
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new InvalidHttpStatusException(
-                    "Server returned unexpected status " + response.code(), response.code());
-            }
-            String json = response.body().string();
-            //  log.debug("Response JSON: "+json);
-            return json;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        Request request = requestBuilder.build();
+        return execute(request);
     }
 
     public static String post(String url, String requestBody) {
-        //        log.debug("POST to "+url + " with REQUEST BODY " + requestBody);
-        //RequestBody body = RequestBody.create(requestBody, MediaType.parse("application/json"));
-        RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestBody);
-        Request request = new Request.Builder().url(url).post(body).build();
-
-        OkHttpClient client = HttpUtils.createAuthenticatedClient();
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new InvalidHttpStatusException(
-                    "Server returned unexpected status " + response.code(), response.code());
-            }
-            String json = response.body().string();
-            //  log.debug("Response JSON: "+json);
-            return json;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return  post(url,requestBody,null);
     }
 
-    public static String post(String url, String requestBody, String accessToken) {
-        if (accessToken == null) {
-            return post(url, requestBody);
-        }
+    public static String post(String url, String requestBody, RequestAuthorization authorization) {
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestBody);
-        Request request = new Request.Builder().url(url).post(body).header("Authorization", "Bearer " + accessToken)
-            .build();
+        Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
 
-        OkHttpClient client = HttpUtils.createAuthenticatedClient();
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new InvalidHttpStatusException(
-                    "Server returned unexpected status " + response.code(), response.code());
-            }
-            String json = response.body().string();
-            //  log.debug("Response JSON: "+json);
-            return json;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
+        if (authorization != null && authorization.hasAuth()) {
+            requestBuilder.header("Authorization", authorization.getAuthorizationHeader())
+                .build();
         }
+
+        return execute(requestBuilder.build());
     }
 
     public static <T> T postAs(String url, String requestBody, Class<T> clazz) {
-        try {
-            String json = post(url, requestBody);
-
-            ObjectMapper om = getMapper();
-
-            return om.readValue(json, clazz);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return postAs(url,requestBody,clazz,null);
     }
 
-    public static <T> T postAs(String url, String requestBody, Class<T> clazz, String accessToken) {
-        if (accessToken == null) {
-            return postAs(url, requestBody, clazz);
-        }
+    public static <T> T postAs(String url, String requestBody, Class<T> clazz, RequestAuthorization authorization) {
         try {
-            String json = accessToken == null ? post(url, requestBody) : post(url, requestBody, accessToken);
-
+            String json = post(url,requestBody,authorization);
             ObjectMapper om = getMapper();
-
             return om.readValue(json, clazz);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -150,26 +93,13 @@ public class HttpUtils {
     }
 
     public static <T> T getAs(String url, Class<T> clazz) {
-        try {
-            String json = get(url);
-
-            ObjectMapper om = getMapper();
-
-            return om.readValue(json, clazz);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+        return getAs(url,clazz,null);
     }
 
-    public static <T> T getAs(String url, Class<T> clazz, String accessToken) {
-        if (accessToken == null) {
-            return getAs(url, clazz);
-        }
+    public static <T> T getAs(String url, Class<T> clazz, RequestAuthorization authorization) {
         try {
-            String json = accessToken == null ? get(url) : get(url, accessToken);
-
+            String json = get(url,authorization);
             ObjectMapper om = getMapper();
-
             return om.readValue(json, clazz);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -177,24 +107,13 @@ public class HttpUtils {
     }
 
     public static <T> T getAs(String url, TypeReference<T> typeReference) {
-        try {
-            String json = get(url);
-            ObjectMapper om = getMapper();
-
-            return om.readValue(json, typeReference);
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
+       return getAs(url,typeReference,null);
     }
 
-    public static <T> T getAs(String url, TypeReference<T> typeReference, String accessToken) {
-        if (accessToken == null) {
-            return getAs(url, typeReference);
-        }
+    public static <T> T getAs(String url, TypeReference<T> typeReference, RequestAuthorization authorization) {
         try {
-            String json = get(url,accessToken);
+            String json = get(url, authorization);
             ObjectMapper om = getMapper();
-
             return om.readValue(json, typeReference);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);

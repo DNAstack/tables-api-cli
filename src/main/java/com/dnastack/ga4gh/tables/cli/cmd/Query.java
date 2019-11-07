@@ -1,6 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
+import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.publisher.Publisher;
 import com.dnastack.ga4gh.tables.cli.util.TableSearcher;
@@ -10,7 +11,6 @@ import com.dnastack.ga4gh.tables.cli.util.outputter.Outputter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -58,11 +58,15 @@ public class Query extends BaseCmd {
 
     @Override
     public void runExceptionally() {
-        TableSearcher datasetSearcher = new TableSearcher(query.getQuery(), false, ConfigUtil.getAccessTokenOrNull());
+        TableSearcher datasetSearcher = new TableSearcher(query.getQuery(), false, ConfigUtil.getUserConfig()
+            .getRequestAuthorization());
         try (Outputter outputter = outputOptions.getOutputter()) {
             Publisher publisher = publishOptions.getPublisher(null);
             int pageNum = 0;
             for (TableData dataset : datasetSearcher.getDataPages()) {
+                if (pageNum == 0){
+                    publisher.publish(new Table(null,null,dataset.getDataModel()));
+                }
                 outputter.output(dataset, pageNum == 0);
                 publisher.publish(dataset, pageNum);
                 pageNum++;

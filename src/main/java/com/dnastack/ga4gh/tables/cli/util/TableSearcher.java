@@ -11,9 +11,9 @@ public class TableSearcher extends TableFetcher {
     private final String queryJson;
 
 
-    public TableSearcher(String query, boolean recursePropertyRefs, String accessToken) {
+    public TableSearcher(String query, boolean recursePropertyRefs, RequestAuthorization authorization) {
         //TODO: accessToken here
-        super(null, recursePropertyRefs, accessToken);
+        super(null, recursePropertyRefs, authorization);
         this.queryJson = getQueryJson(query);
     }
 
@@ -51,13 +51,13 @@ public class TableSearcher extends TableFetcher {
                     public TableData next() {
                         if (currentPage == null) {
                             currentUrlContext = getSearchUrl();
-                            currentPage = HttpUtils.postAs(getSearchUrl(), queryJson, TableData.class, accessToken);
+                            currentPage = HttpUtils.postAs(getSearchUrl(), queryJson, TableData.class, authorization);
                         } else if (currentPage.getPagination() == null
                             || currentPage.getPagination().getNextPageUrl() == null) {
                             return null;
                         } else if (currentPage.getPagination().getNextPageUrl() != null) {
                             currentPage = HttpUtils.getAs(getAbsoluteUrl(currentPage.getPagination()
-                                .getNextPageUrl(), currentUrlContext), TableData.class, accessToken);
+                                .getNextPageUrl(), currentUrlContext), TableData.class, authorization);
                         }
                         currentPage.setDataModel(resolveRefs(currentPage.getDataModel(), currentUrlContext));
                         return currentPage;

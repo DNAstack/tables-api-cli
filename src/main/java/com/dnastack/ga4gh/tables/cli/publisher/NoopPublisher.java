@@ -4,9 +4,9 @@ import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 
 //TODO: How did I end up here? This can't be right.
-public class NoPublisher extends Publisher {
+public class NoopPublisher extends Publisher {
 
-    public NoPublisher() {
+    public NoopPublisher() {
         super(null, null);
     }
 
