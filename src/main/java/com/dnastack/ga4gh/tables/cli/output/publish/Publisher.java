@@ -1,5 +1,6 @@
-package com.dnastack.ga4gh.tables.cli.publisher;
+package com.dnastack.ga4gh.tables.cli.output.publish;
 
+import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -27,9 +28,11 @@ public abstract class Publisher {
         return root + tableName;
     }
 
-    public abstract void publish(Table dataset);
+    public abstract void publish(Table table);
 
-    public abstract void publish(TableData dataset, int pageNum);
+    public abstract void publish(ListTableResponse table);
+
+    public abstract void publish(TableData tableData, int pageNum);
 
     abstract String getObjectRoot(String destination);
 

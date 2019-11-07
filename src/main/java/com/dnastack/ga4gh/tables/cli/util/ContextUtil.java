@@ -11,7 +11,6 @@ public class ContextUtil {
         } catch (ContextDAO.PersistenceException e) {
             System.err.println(e.getMessage());
             System.err.println("Try running the 'login' command.");
-            //throw new CommandLineClient.SystemExit(1, e);
             throw new RuntimeException(e);
         }
     }

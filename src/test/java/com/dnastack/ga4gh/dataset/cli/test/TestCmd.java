@@ -59,6 +59,7 @@ public class TestCmd {
         System.setOut(new PrintStream(capturedStdoutBytes));
         int code = Main.runCommand(args);
         if (code != 0) {
+            System.err.println("Project exited with code: " + code);
             System.err.println("Failed to run command " + StringUtils.join(args, " "));
             System.err.println("Output: ");
             System.err.println(capturedStdoutBytes.toString(StandardCharsets.UTF_8));

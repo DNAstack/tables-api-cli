@@ -1,15 +1,18 @@
 package com.dnastack.ga4gh.tables.cli.config;
 
+import com.dnastack.ga4gh.tables.cli.util.LoggingUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestLine;
+import de.vandermeer.asciitable.CWC_LongestWordMax;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
+import java.util.Map;
 
 public class ConfigUtil {
 
@@ -106,8 +109,7 @@ public class ConfigUtil {
     }
 
     public static void printConfigValue(String key) {
-        CWC_LongestLine cwc = new CWC_LongestLine();
-        cwc.add(4, 100);
+        CWC_LongestWordMax cwc = new CWC_LongestWordMax(80);
         AsciiTable asciiTable = new AsciiTable();
         asciiTable.getContext().setWidth(120);
         asciiTable.getRenderer().setCWC(cwc);
@@ -151,8 +153,7 @@ public class ConfigUtil {
     public static void printConfig() {
         try {
             Config config = getUserConfig();
-            CWC_LongestLine cwc = new CWC_LongestLine();
-            cwc.add(4, 100);
+            CWC_LongestWordMax cwc = new CWC_LongestWordMax(80);
             AsciiTable asciiTable = new AsciiTable();
             asciiTable.getContext().setWidth(120);
             asciiTable.getRenderer().setCWC(cwc);
@@ -180,6 +181,28 @@ public class ConfigUtil {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void printTokenList() {
+        Config config = getUserConfig();
+        CWC_LongestWordMax cwc = new CWC_LongestWordMax(80);
+        AsciiTable asciiTable = new AsciiTable();
+        asciiTable.getContext().setWidth(120);
+        asciiTable.getRenderer().setCWC(cwc);
+        asciiTable.addRule();
+        asciiTable.addRow("API", "Token").setPaddingLeftRight(3);
+
+        Map<String, String> tokens = config.getApiTokens();
+        if (tokens != null) {
+            for (Map.Entry<String, String> entry : tokens.entrySet()) {
+                asciiTable.addRule();
+                asciiTable.addRow(entry.getKey(), entry.getValue());
+            }
+        }
+        asciiTable.addRule();
+        System.out.println(asciiTable.render());
+        System.out.println();
+
     }
 
     private static String obscurePassword(String password) {

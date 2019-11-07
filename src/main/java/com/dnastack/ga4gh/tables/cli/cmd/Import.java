@@ -1,6 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.util.Importer;
+import com.dnastack.ga4gh.tables.cli.util.LoggingUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
@@ -28,7 +29,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "import", mixinStandardHelpOptions = true, description = "Import table (*=required argument)", requiredOptionMarker = '*', sortOptions = false)
 //@Slf4j
-public class Import implements Runnable {
+public class Import extends BaseCmd {
 
 
     @CommandLine.Option(
@@ -169,7 +170,7 @@ public class Import implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void runCmd() {
         //Read and validate schema.
         Schema schema = getDataModel();
         //Read in the CSV.

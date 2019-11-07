@@ -10,10 +10,10 @@ public class ExceptionHandler implements IExecutionExceptionHandler {
     public int handleExecutionException(Exception ex, CommandLine commandLine, ParseResult parseResult) throws Exception {
         System.err.println("ERROR: " + ex.getMessage());
         System.err.println();
-        LoggedCommand command = commandLine.getCommand();
-        if (command.getLoggingOptions().isDebug()) {
-            ex.printStackTrace();
+        if (LoggingUtil.isDebug()) {
+            ex.printStackTrace(System.err);
         }
+
         return 1;
     }
 }

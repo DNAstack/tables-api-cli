@@ -1,32 +1,31 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
-import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
-import com.dnastack.ga4gh.tables.cli.publisher.Publisher;
+import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
 import com.dnastack.ga4gh.tables.cli.util.TableSearcher;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
-import com.dnastack.ga4gh.tables.cli.util.option.PublishOptions;
-import com.dnastack.ga4gh.tables.cli.util.outputter.Outputter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Iterator;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "query", mixinStandardHelpOptions = true, description = "Query tables (*=required argument)", requiredOptionMarker = '*', sortOptions = false)
-public class Query extends BaseCmd {
+public class Query extends AuthorizedCmd {
 
     @Mixin
     private OutputOptions outputOptions;
-    @Mixin
-    private PublishOptions publishOptions;
 
+    @Option(names = {"--max-pages"}, description = "Max number of pages to iterate through")
+    private Integer maxPages;
 
     @ArgGroup(multiplicity = "1")
     ExclusiveQuery query;
+
 
     private static class ExclusiveQuery {
 
@@ -44,11 +43,11 @@ public class Query extends BaseCmd {
 
         String getQuery() {
 
-            if (stringQuery != null) {
+            if (stringQuery != null && !stringQuery.isEmpty()) {
                 return stringQuery;
             } else {
                 try {
-                    return Files.readString(fileQuery.toPath());
+                    return Files.readString(fileQuery.toPath()).trim();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -57,20 +56,22 @@ public class Query extends BaseCmd {
     }
 
     @Override
-    public void runExceptionally() {
-        TableSearcher datasetSearcher = new TableSearcher(query.getQuery(), false, ConfigUtil.getUserConfig()
+    public void runCmd() {
+        String q = query.getQuery();
+        TableSearcher tableSearcher = new TableSearcher(q, false, ConfigUtil.getUserConfig()
             .getRequestAuthorization());
-        try (Outputter outputter = outputOptions.getOutputter()) {
-            Publisher publisher = publishOptions.getPublisher(null);
+        try (OutputWriter outputWriter = outputOptions.getWriter()) {
             int pageNum = 0;
-            for (TableData dataset : datasetSearcher.getDataPages()) {
-                if (pageNum == 0){
-                    publisher.publish(new Table(null,null,dataset.getDataModel()));
-                }
-                outputter.output(dataset, pageNum == 0);
-                publisher.publish(dataset, pageNum);
-                pageNum++;
+            if (maxPages == null) {
+                maxPages = Integer.MAX_VALUE;
             }
+            Iterator<TableData> data = tableSearcher.getDataPages().iterator();
+            while (data.hasNext() && pageNum < maxPages) {
+                TableData tableData = data.next();
+                outputWriter.writeSearchResult(tableData);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

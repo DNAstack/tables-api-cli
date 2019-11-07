@@ -1,4 +1,4 @@
-package com.dnastack.ga4gh.tables.cli.util.outputter;
+package com.dnastack.ga4gh.tables.cli.output.format;
 
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
@@ -11,12 +11,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-public class JsonOutputter extends TableOutputter {
+public class JsonOutputFormatter extends TableFormatter {
 
 
     private JsonGenerator generator;
+    private boolean closeObject = true;
 
-    public JsonOutputter(OutputStream outputStream) {
+    public JsonOutputFormatter(OutputStream outputStream) {
         super(outputStream);
         JsonFactory factory = new JsonFactory();
         try {
@@ -29,7 +30,7 @@ public class JsonOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputHeader(TableData page) throws IOException {
+    public void outputHeader(TableData page) throws IOException {
         generator.writeStartObject();
         if (page.getDataModel() != null) {
             generator.writeObjectField("data_model", page.getDataModel());
@@ -38,7 +39,7 @@ public class JsonOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputRows(TableData page) throws IOException {
+    public void outputRows(TableData page) throws IOException {
         assertPropertyConsistency(page);
         for (Map<String, Object> data : page.getData()) {
             generator.writeObject(data);
@@ -46,21 +47,30 @@ public class JsonOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputFooter(TableData page) throws IOException {
+    public void outputFooter() throws IOException {
         generator.writeEndArray();
         generator.writeEndObject();
         generator.flush();
     }
 
     @Override
-    protected void outputInfo(Table table) throws IOException {
+    public void outputInfo(Table table) throws IOException {
         generator.writeObject(table);
         generator.flush();
+        closeObject = false;
     }
 
     @Override
-    protected void outputTableList(ListTableResponse table) throws IOException {
+    public void outputTableList(ListTableResponse table) throws IOException {
         generator.writeObject(table);
         generator.flush();
+        closeObject = false;
+    }
+
+    @Override
+    public void close() {
+        if (closeObject) {
+            super.close();
+        }
     }
 }

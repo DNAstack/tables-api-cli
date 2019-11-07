@@ -1,7 +1,7 @@
 package com.dnastack.ga4gh.dataset.cli.test;
 
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
-import com.dnastack.ga4gh.tables.cli.publisher.GCSPublisher;
+import com.dnastack.ga4gh.tables.cli.output.publish.GCSPublisher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

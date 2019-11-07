@@ -25,7 +25,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "login", mixinStandardHelpOptions = true, description = "Login (*=required argument)", requiredOptionMarker = '*', sortOptions = false)
-public class Login extends BaseCmd {
+public class Login extends AuthorizedCmd {
 
     //TODO: These should probably come from the user's stored config file
     private final String DEFAULT_DAM_ID = "1";
@@ -77,7 +77,7 @@ public class Login extends BaseCmd {
     private String damId;
 
     @Override
-    public void runExceptionally() {
+    public void runCmd() {
         if (performIdentityLogin()) {
             getSearchAccess();
         }

@@ -1,5 +1,6 @@
-package com.dnastack.ga4gh.tables.cli.publisher;
+package com.dnastack.ga4gh.tables.cli.output.publish;
 
+import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -71,6 +72,16 @@ public class GCSPublisher extends Publisher {
 
         String tableInfoJson = toString(table);
         String tableInfoPage = this.blobRoot + "/info";
+        Storage storage = StorageOptions.getDefaultInstance().getService();
+        BlobId blobId = BlobId.of(this.bucket, tableInfoPage);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("application/json").build();
+        Blob blob = storage.create(blobInfo, tableInfoJson.getBytes());
+    }
+
+    @Override
+    public void publish(ListTableResponse table) {
+        String tableInfoJson = toString(table);
+        String tableInfoPage = this.destination + "/tables";
         Storage storage = StorageOptions.getDefaultInstance().getService();
         BlobId blobId = BlobId.of(this.bucket, tableInfoPage);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("application/json").build();

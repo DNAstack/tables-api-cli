@@ -1,4 +1,4 @@
-package com.dnastack.ga4gh.tables.cli.util.outputter;
+package com.dnastack.ga4gh.tables.cli.output.format;
 
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
@@ -11,11 +11,11 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-public class CSVOutputter extends TableOutputter {
+public class CSVOutFormatter extends TableFormatter {
 
     private final CSVPrinter csvOutputter;
 
-    public CSVOutputter(CSVFormat format, OutputStream stream) {
+    public CSVOutFormatter(CSVFormat format, OutputStream stream) {
         super(stream);
         try {
             this.csvOutputter = new CSVPrinter(new OutputStreamWriter(stream), format.withSkipHeaderRecord().withRecordSeparator(String.format("%n")));
@@ -25,13 +25,13 @@ public class CSVOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputHeader(TableData page) throws IOException {
+    public void outputHeader(TableData page) throws IOException {
         assertPropertyConsistency(page);
         csvOutputter.printRecord(propertyKeys);
     }
 
     @Override
-    protected void outputRows(TableData page) throws IOException {
+    public void outputRows(TableData page) throws IOException {
         assertPropertyConsistency(page);
         for (Map<String, Object> object : page.getData()) {
             List<String> row = getRow(propertyKeys, object);
@@ -40,12 +40,12 @@ public class CSVOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputFooter(TableData page) throws IOException {
+    public void outputFooter() throws IOException {
         csvOutputter.flush();
     }
 
     @Override
-    protected void outputInfo(Table table) throws IOException {
+    public void outputInfo(Table table) throws IOException {
         addFoundKeys(table);
         csvOutputter.printRecord("Table Name", "Description", "Properties");
         String firstProperty = propertyKeys.size() > 0 ? propertyKeys.get(0) : "";
@@ -58,7 +58,7 @@ public class CSVOutputter extends TableOutputter {
     }
 
     @Override
-    protected void outputTableList(ListTableResponse tables) throws IOException {
+    public void outputTableList(ListTableResponse tables) throws IOException {
         csvOutputter.printRecord("Table Name", "Description");
 
         for (Table table : tables.getTables()) {

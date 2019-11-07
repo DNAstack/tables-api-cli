@@ -1,6 +1,7 @@
-package com.dnastack.ga4gh.tables.cli.publisher;
+package com.dnastack.ga4gh.tables.cli.output.publish;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
+import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -53,11 +54,9 @@ public class ABSPublisher extends Publisher {
         if (pagination.getNextPageUrl() != null && !pagination.getNextPageUrl().isBlank()) {
             try {
                 CloudBlockBlob blob = container.getBlockBlobReference(pagination.getNextPageUrl());
-                //Ensure blob exists
                 if (!blob.exists()) {
                     blob.uploadFromByteArray(new byte[1], 0, 1);
                 }
-                //blob.generateUserDelegationSharedAccessSignature()
                 String sas = blob.generateSharedAccessSignature(blobPolicy, null);
                 SASPagination.setNextPageUrl(pagination.getNextPageUrl() + "?" + sas);
             } catch (Exception e) {
@@ -82,7 +81,28 @@ public class ABSPublisher extends Publisher {
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
-            //System.out.println("Unable to connect to ABS container: " + getContainerName(destination) + " :" + e.getMessage());
+            throw new RuntimeException(String
+                .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload blob: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void publish(ListTableResponse table) {
+        String tableInfoJson = toString(table);
+        String tableInfoPage = this.destination + "/tables";
+        try {
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getConnectionString(account));
+            CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
+            CloudBlobContainer container = blobClient.getContainerReference(getContainerName(destination));
+            container
+                .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
+            CloudBlockBlob blob = container.getBlockBlobReference(tableInfoPage);
+            blob.uploadFromByteArray(tableInfoJson.getBytes(), 0, tableInfoJson.getBytes().length);
+        } catch (InvalidKeyException | URISyntaxException e) {
+            throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
+        } catch (StorageException e) {
             throw new RuntimeException(String
                 .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
         } catch (IOException e) {
@@ -111,11 +131,9 @@ public class ABSPublisher extends Publisher {
             String tableJson = toString(modifiedData);
 
             blob.uploadFromByteArray(tableJson.getBytes(), 0, tableJson.getBytes().length);
-            //System.out.println("Published: " + blob.getUri());
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
-            //System.out.println("Unable to connect to ABS container: " + getContainerName(destination) + " :" + e.getMessage());
             throw new RuntimeException(String
                 .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
         } catch (IOException e) {

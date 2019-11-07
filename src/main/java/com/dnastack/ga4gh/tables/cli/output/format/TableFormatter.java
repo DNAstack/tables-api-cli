@@ -1,4 +1,4 @@
-package com.dnastack.ga4gh.tables.cli.util.outputter;
+package com.dnastack.ga4gh.tables.cli.output.format;
 
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
@@ -14,24 +14,24 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
 
-public abstract class TableOutputter implements Closeable {
+public abstract class TableFormatter implements Closeable {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
     protected List<String> propertyKeys;
     protected final OutputStream outputStream;
 
-    protected abstract void outputHeader(TableData page) throws IOException;
+    public abstract void outputHeader(TableData page) throws IOException;
 
-    protected abstract void outputRows(TableData page) throws IOException;
+    public abstract void outputRows(TableData page) throws IOException;
 
-    protected abstract void outputFooter(TableData page) throws IOException;
+    public abstract void outputFooter() throws IOException;
 
-    protected abstract void outputInfo(Table table) throws IOException;
+    public abstract void outputInfo(Table table) throws IOException;
 
-    protected abstract void outputTableList(ListTableResponse table) throws IOException;
+    public abstract void outputTableList(ListTableResponse table) throws IOException;
 
 
-    public TableOutputter(OutputStream stream) {
+    public TableFormatter(OutputStream stream) {
         this.outputStream = stream;
     }
 
@@ -45,7 +45,7 @@ public abstract class TableOutputter implements Closeable {
         }
     }
 
-    protected void addFoundKeys(Table table){
+    protected void addFoundKeys(Table table) {
         Set<String> foundKeys = ((Map<String, ?>) table.getDataModel().get("properties")).keySet();
         addFoundKeys(foundKeys);
     }
@@ -82,6 +82,7 @@ public abstract class TableOutputter implements Closeable {
     @Override
     public void close() {
         try {
+            this.outputFooter();
             this.outputStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
