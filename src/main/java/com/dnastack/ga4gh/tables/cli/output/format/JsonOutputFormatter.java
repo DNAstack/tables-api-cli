@@ -48,9 +48,12 @@ public class JsonOutputFormatter extends TableFormatter {
 
     @Override
     public void outputFooter() throws IOException {
-        generator.writeEndArray();
-        generator.writeEndObject();
-        generator.flush();
+        if (closeObject) {
+            generator.writeEndArray();
+            generator.writeEndObject();
+            generator.flush();
+        }
+        outputStream.write(String.format("%n").getBytes());
     }
 
     @Override
@@ -65,12 +68,5 @@ public class JsonOutputFormatter extends TableFormatter {
         generator.writeObject(table);
         generator.flush();
         closeObject = false;
-    }
-
-    @Override
-    public void close() {
-        if (closeObject) {
-            super.close();
-        }
     }
 }

@@ -31,7 +31,6 @@ public class PrettyPrintOutputFormatter extends TableFormatter {
     public void outputHeader(TableData page) {
         assertPropertyConsistency(page);
         asciiTable.addRow(propertyKeys).setPaddingLeftRight(3);
-        asciiTable.addRule();
     }
 
     @Override
@@ -40,6 +39,7 @@ public class PrettyPrintOutputFormatter extends TableFormatter {
         for (Map<String, Object> object : page.getData()) {
             List<String> row = getRow(propertyKeys, object).stream().map(v -> v == null ? "" : v)
                 .collect(Collectors.toList());
+            asciiTable.addRule();
             asciiTable.addRow(row).setPaddingLeftRight(3);
         }
     }
@@ -66,22 +66,15 @@ public class PrettyPrintOutputFormatter extends TableFormatter {
                 asciiTable.addRow("", "", propertyKeys.get(i)).setPaddingLeftRight(3);
             }
         }
-        asciiTable.addRule();
-        outputStream.write(asciiTable.render().getBytes());
-        outputStream.write(String.format("%n").getBytes());
     }
 
     @Override
     public void outputTableList(ListTableResponse tables) throws IOException {
         asciiTable.addRow("Table Name", "Description").setPaddingLeftRight(3);
-        asciiTable.addRule();
 
         for (Table table : tables.getTables()) {
-            asciiTable.addRow(table.getName(), table.getDescription());
             asciiTable.addRule();
+            asciiTable.addRow(table.getName(), table.getDescription());
         }
-        outputStream.write(asciiTable.render().getBytes());
-        outputStream.write(String.format("%n").getBytes());
-
     }
 }
