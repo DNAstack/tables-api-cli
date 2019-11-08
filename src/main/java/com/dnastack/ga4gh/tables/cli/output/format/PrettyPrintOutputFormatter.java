@@ -57,13 +57,16 @@ public class PrettyPrintOutputFormatter extends TableFormatter {
         asciiTable.addRow("Table Name", "Description", "Properties").setPaddingLeftRight(3);
         asciiTable.addRule();
 
+        String name = table.getName() == null ? "" : table.getName();
+        String description = table.getDescription() == null ? "" : table.getDescription();
         String firstProperty = propertyKeys.size() > 0 ? propertyKeys.get(0) : "";
-        asciiTable.addRow(table.getName(), table.getDescription(), firstProperty).setPaddingLeftRight(3);
+        asciiTable.addRow(name, description, firstProperty).setPaddingLeftRight(3);
 
         if (propertyKeys.size() > 1) {
             for (int i = 1; i < propertyKeys.size(); i++) {
                 asciiTable.addRule();
-                asciiTable.addRow("", "", propertyKeys.get(i)).setPaddingLeftRight(3);
+                String property = propertyKeys.get(i) == null ? "" : propertyKeys.get(i);
+                asciiTable.addRow("", "", property).setPaddingLeftRight(3);
             }
         }
     }
@@ -74,7 +77,9 @@ public class PrettyPrintOutputFormatter extends TableFormatter {
 
         for (Table table : tables.getTables()) {
             asciiTable.addRule();
-            asciiTable.addRow(table.getName(), table.getDescription());
+            String name = table.getName() == null ? "" : table.getName();
+            String description = table.getDescription() == null ? "" : table.getDescription();
+            asciiTable.addRow(name, description).setPaddingLeftRight(3);
         }
     }
 }
