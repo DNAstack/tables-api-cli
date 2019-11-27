@@ -1,7 +1,6 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
-import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.GcsUtil;
@@ -40,7 +39,6 @@ public class GCSPublisher extends AbstractPublisher {
     }
 
 
-
     @Override
     public void publish(Table table) {
         if (!tableName.equals(table.getName())) {
@@ -58,7 +56,8 @@ public class GCSPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         String tableInfoJson = format(table);
-        String tableInfoPage = this.destination + "/tables";
+        String root = GcsUtil.getObjectRoot(destination);
+        String tableInfoPage = root == null ? "tables" : root + "/tables";
         Storage storage = StorageOptions.getDefaultInstance().getService();
         BlobId blobId = BlobId.of(this.bucket, tableInfoPage);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(getContentType()).build();
