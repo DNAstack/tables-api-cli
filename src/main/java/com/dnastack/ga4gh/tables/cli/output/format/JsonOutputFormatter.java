@@ -35,6 +35,10 @@ public class JsonOutputFormatter extends TableFormatter {
         if (page.getDataModel() != null) {
             generator.writeObjectField("data_model", page.getDataModel());
         }
+
+        if (page.getPagination() != null) {
+            generator.writeObjectField("pagination", page.getPagination());
+        }
         generator.writeArrayFieldStart("data");
     }
 

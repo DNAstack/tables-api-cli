@@ -1,21 +1,23 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
-import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
-import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
+import com.dnastack.ga4gh.tables.cli.output.OutputTableFormatter;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
+import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.OutputStream;
 
-public class ConsolePublisher extends AbstractPublisher {
+public class ConsolePublisher extends AbstractPublisher implements Closeable {
 
+    private final OutputStream outputStream;
+    private final OutputTableFormatter outputWriter;
 
-    public ConsolePublisher(String tableName, String destination) {
-        super(tableName, destination);
+    public ConsolePublisher(OutputMode outputMode, String tableName, String destination) {
+        super(outputMode, tableName, destination);
+        outputStream = System.out;
+        outputWriter = new OutputTableFormatter(this.outputMode, outputStream);
     }
 
     @Override
@@ -23,55 +25,27 @@ public class ConsolePublisher extends AbstractPublisher {
         if (!tableName.equals(table.getName())) {
             table.setName(tableName);
         }
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            File destinationFile = new File(blobRoot, "info");
-            destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, table);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        outputWriter.write(table);
     }
 
     @Override
     public void publish(ListTableResponse table) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            File destinationFile = new File(destination, "tables");
-            destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, table);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        outputWriter.write(table);
     }
 
     @Override
     public void publish(TableData tableData, int pageNum) {
-
-        try {
-            TableData modifiedData = new TableData();
-            modifiedData.setDataModel(tableData.getDataModel());
-            modifiedData.setData(tableData.getData());
-            modifiedData.setPagination(getAbsolutePagination(tableData.getPagination(), pageNum));
-
-            ObjectMapper mapper = new ObjectMapper();
-            String filename = "data" + (pageNum == 0 ? "" : "." + pageNum);
-            File destinationFile = new File(blobRoot, filename);
-            destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, modifiedData);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        TableData newData = new TableData(tableData.getDataModel(), tableData.getData(), null);
+        outputWriter.write(newData);
     }
 
     @Override
     public String getObjectRoot(String destination) {
-        Path currentDirectory = Paths.get(".");
-        Path destinationPath = Paths.get(destination);
-        Path resolvedPath = currentDirectory.resolve(destinationPath);
+        return null;
+    }
 
-        return resolvedPath.toString();
+    @Override
+    public void close() throws IOException {
+        outputWriter.close();
     }
 }

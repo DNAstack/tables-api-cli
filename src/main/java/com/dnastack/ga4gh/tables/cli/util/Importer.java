@@ -5,8 +5,7 @@ import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
-import com.dnastack.ga4gh.tables.cli.output.PublishingOutputWriter;
-import com.dnastack.ga4gh.tables.cli.util.option.PublishOptions;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,22 +31,27 @@ public class Importer implements Closeable {
     private final int pageSize;
     private List<Map<String, Object>> currentPageObjects;
     private LinkedHashMap<String, Object> dataModel;
-    private PublishOptions tablePublishOptions;
+    private OutputOptions tablePublishOptions;
 
     private final OutputWriter infoWriter;
     private final OutputWriter dataWriter;
     private final OutputWriter listWriter;
 
-    public Importer(PublishOptions publishOptions, String description, int pageSize, String pathToInputDataModel) {
+    public Importer(OutputOptions outputOptions, String description, int pageSize, String pathToInputDataModel) {
         this.pageSize = pageSize;
         this.currentPageObjects = new ArrayList<>(pageSize);
-        tablePublishOptions = publishOptions.clone();
-        String tableDest = tablePublishOptions.getPublishDestination();
-        tablePublishOptions
-            .setPublishDestination(tableDest.endsWith("/") ? tableDest + TABLE_DIR : tableDest + "/" + TABLE_DIR);
-        listWriter = new PublishingOutputWriter(publishOptions);
-        infoWriter = new PublishingOutputWriter(tablePublishOptions);
-        dataWriter = new PublishingOutputWriter(tablePublishOptions.clone());
+
+        tablePublishOptions = outputOptions.clone();
+        String tableDest = tablePublishOptions.getDestination();
+
+        if (tableDest != null) {
+            tablePublishOptions
+                .setDestination(tableDest.endsWith("/") ? tableDest + TABLE_DIR : tableDest + "/" + TABLE_DIR);
+        }
+
+        listWriter = new OutputWriter(outputOptions);
+        infoWriter = new OutputWriter(tablePublishOptions);
+        dataWriter = new OutputWriter(tablePublishOptions.clone());
 
         this.description = description == null ? "Generated Table" : description;
         this.dataModel = readDataModel(pathToInputDataModel);

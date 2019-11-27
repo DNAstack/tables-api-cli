@@ -1,7 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.util.Importer;
-import com.dnastack.ga4gh.tables.cli.util.option.PublishOptions;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
@@ -34,7 +34,7 @@ public class Import extends BaseCmd {
 
 
     @Mixin
-    private PublishOptions publishOptions;
+    private OutputOptions outputOptions;
 
     @CommandLine.Option(
         names = {"-d", "--table-description", "--description"},
@@ -58,8 +58,7 @@ public class Import extends BaseCmd {
         "--quiet"}, description = "If set, output messages are suppressed", required = false)
     private boolean quiet = false;
 
-    @CommandLine.Option(names = {"-f",
-        "--input-format"}, description = "Valid values: ${COMPLETION-CANDIDATES}", required = false)
+    @CommandLine.Option(names = {"--input-format"}, description = "Valid values: ${COMPLETION-CANDIDATES}", required = false)
     private CSVFormat.Predefined predefinedCsvFormat = null;
 
     @CommandLine.Option(names = {"--delimiter"}, description = "Delimiter character in input file", required = false)
@@ -175,7 +174,7 @@ public class Import extends BaseCmd {
         csvFormat = applyFormatOptions(csvFormat);
 
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
-            try (Importer importer = new Importer(publishOptions, description, pageSize, inputModel)) {
+            try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
                 importCsvRecords(importer, schema, csvParser);
             }
         } catch (IOException e) {

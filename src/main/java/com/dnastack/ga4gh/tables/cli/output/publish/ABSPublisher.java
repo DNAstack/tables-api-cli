@@ -1,11 +1,11 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
-import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.AbsUtil;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageException;
@@ -17,7 +17,6 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
 import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.time.Instant;
@@ -30,8 +29,8 @@ public class ABSPublisher extends AbstractPublisher {
     private final String account;
     private final boolean generateSASPages;
 
-    public ABSPublisher(String tableName, String destination, boolean generateSASPages) {
-        super(tableName, destination);
+    public ABSPublisher(OutputMode mode, String tableName, String destination, boolean generateSASPages) {
+        super(mode, tableName, destination);
         this.account = AbsUtil.getAccount(destination);
         this.generateSASPages = generateSASPages;
     }
@@ -69,7 +68,7 @@ public class ABSPublisher extends AbstractPublisher {
 
     @Override
     public void publish(Table table) {
-        String tableInfoJson = toString(table);
+        String tableInfoJson = format(table);
         String tableInfoPage = this.blobRoot + "/info";
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
@@ -83,7 +82,8 @@ public class ABSPublisher extends AbstractPublisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                    .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -91,7 +91,7 @@ public class ABSPublisher extends AbstractPublisher {
 
     @Override
     public void publish(ListTableResponse table) {
-        String tableInfoJson = toString(table);
+        String tableInfoJson = format(table);
         String tableInfoPage = this.destination + "/tables";
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
@@ -105,7 +105,8 @@ public class ABSPublisher extends AbstractPublisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                    .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -129,14 +130,15 @@ public class ABSPublisher extends AbstractPublisher {
             if (generateSASPages) {
                 modifiedData.setPagination(generateSASPagination(container, modifiedData.getPagination()));
             }
-            String tableJson = toString(modifiedData);
+            String tableJson = format(modifiedData);
 
             blob.uploadFromByteArray(tableJson.getBytes(), 0, tableJson.getBytes().length);
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                    .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }

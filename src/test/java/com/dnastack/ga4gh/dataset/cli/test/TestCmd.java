@@ -71,7 +71,7 @@ public class TestCmd {
     @Test
     @DisplayName("Listing tables works")
     void TestListTables() {
-        String capturedStdout = runCommand("list", "--api-url", API_URL, "-o", "csv");
+        String capturedStdout = runCommand("list", "--api-url", API_URL, "-f", "csv");
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
         String expectedOutput = getTestResourceAsString(EXPECTED_LIST_OUTPUT_FILE);
@@ -82,7 +82,7 @@ public class TestCmd {
     @Test
     @DisplayName("Info table as CSV works")
     void TestGetTableInfoCsv() {
-        String capturedStdout = runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-o", "csv");
+        String capturedStdout = runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-f", "csv");
         String expectedOutput = getTestResourceAsString(EXPECTED_INFO_OUTPUT_CSV);
         assertEquals(expectedOutput, capturedStdout);
     }
@@ -90,7 +90,7 @@ public class TestCmd {
     @Test
     @DisplayName("Data table as CSV works")
     void TestGetTableDataCsv() {
-        String capturedStdout = runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-o", "csv");
+        String capturedStdout = runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-f", "csv");
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_CSV);
         assertEquals(expectedOutput, capturedStdout);
     }
@@ -98,7 +98,7 @@ public class TestCmd {
     @Test
     @DisplayName("Info table as JSON works")
     void TestGetTableDataAsJson() {
-        String capturedStdout = runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-o", "json");
+        String capturedStdout = runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-f", "json");
         String expectedOutput = getTestResourceAsString(EXPECTED_GET_OUTPUT_JSON);
         assertEquals(expectedOutput, capturedStdout);
     }
@@ -147,7 +147,7 @@ public class TestCmd {
                 schemaToImport.toString(),
                 "--description",
                 "Sample table describing subjects",
-                "-p",
+                "-o",
                 outputDirPath.toString());
 
             verifyDirsAreEqual((getTestResource(EXPECTED_IMPORT_OUTPUT)).toPath(), outputDirPath);
@@ -177,9 +177,9 @@ public class TestCmd {
                 PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
                     "rwx------"))));
 
-            runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-p", outputDirPath
+            runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
                 .toString(), "-N", TEST_TABLE_NAME);
-            runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-p", outputDirPath
+            runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
                 .toString(), "-N", TEST_TABLE_NAME);
             verifyDirsAreEqual((getTestResource(EXPECTED_PUBLISH_OUTPUT)).toPath(), outputDirPath);
         } catch (IOException ie) {

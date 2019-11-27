@@ -1,4 +1,4 @@
-package com.dnastack.ga4gh.tables.cli.fetch;
+package com.dnastack.ga4gh.tables.cli.input;
 
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
@@ -78,6 +78,9 @@ public class GcsTableFetcher extends AbstractTableFetcher {
 
     private String getBlobData(String gsUrl) {
         Blob blob = storage.get(GcsUtil.getBucket(gsUrl), GcsUtil.getObjectRoot(gsUrl));
+        if (!blob.exists()) {
+            throw new IllegalArgumentException("No file exists at destination: " + gsUrl);
+        }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         blob.downloadTo(byteArrayOutputStream);
         return byteArrayOutputStream.toString();

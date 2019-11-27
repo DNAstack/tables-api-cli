@@ -7,18 +7,19 @@ import com.dnastack.ga4gh.tables.cli.output.format.CSVOutFormatter;
 import com.dnastack.ga4gh.tables.cli.output.format.JsonOutputFormatter;
 import com.dnastack.ga4gh.tables.cli.output.format.PrettyPrintOutputFormatter;
 import com.dnastack.ga4gh.tables.cli.output.format.TableFormatter;
-import com.dnastack.ga4gh.tables.cli.util.option.OutputFormatOptions;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.commons.csv.CSVFormat;
 
-public class FormattedOutputWriter implements OutputWriter {
+public class OutputTableFormatter implements Closeable {
 
 
     private TableFormatter formattedOutputter;
     private boolean firstPage = true;
 
-    public FormattedOutputWriter(OutputFormatOptions.OutputMode outputMode, OutputStream outputStream) {
+    public OutputTableFormatter(OutputOptions.OutputMode outputMode, OutputStream outputStream) {
         switch (outputMode) {
             case JSON:
                 this.formattedOutputter = new JsonOutputFormatter(outputStream);
@@ -37,7 +38,6 @@ public class FormattedOutputWriter implements OutputWriter {
         }
     }
 
-    @Override
     public void write(TableData data) {
         try {
             if (firstPage) {
@@ -51,7 +51,6 @@ public class FormattedOutputWriter implements OutputWriter {
 
     }
 
-    @Override
     public void write(Table table) {
         try {
             this.formattedOutputter.outputInfo(table);
@@ -60,7 +59,6 @@ public class FormattedOutputWriter implements OutputWriter {
         }
     }
 
-    @Override
     public void write(ListTableResponse listTableResponse) {
         try {
             this.formattedOutputter.outputTableList(listTableResponse);
@@ -68,11 +66,6 @@ public class FormattedOutputWriter implements OutputWriter {
             throw new RuntimeException(e);
         }
 
-    }
-
-    @Override
-    public void writeSearchResult(TableData tableData) {
-        write(tableData);
     }
 
     @Override

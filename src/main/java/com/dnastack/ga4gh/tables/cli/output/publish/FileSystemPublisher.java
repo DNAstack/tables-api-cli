@@ -3,16 +3,17 @@ package com.dnastack.ga4gh.tables.cli.output.publish;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileSystemPublisher extends AbstractPublisher {
 
-    public FileSystemPublisher(String tableName, String destination) {
-        super(tableName, destination);
+    public FileSystemPublisher(OutputMode mode, String tableName, String destination) {
+        super(mode, tableName, destination);
     }
 
     @Override
@@ -22,10 +23,10 @@ public class FileSystemPublisher extends AbstractPublisher {
         }
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
             File destinationFile = new File(blobRoot, "info");
             destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, table);
+            String contents = format(table);
+            Files.write(destinationFile.toPath(), contents.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -34,10 +35,10 @@ public class FileSystemPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
             File destinationFile = new File(destination, "tables");
             destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, table);
+            String contents = format(table);
+            Files.write(destinationFile.toPath(), contents.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -52,11 +53,11 @@ public class FileSystemPublisher extends AbstractPublisher {
             modifiedData.setData(tableData.getData());
             modifiedData.setPagination(getAbsolutePagination(tableData.getPagination(), pageNum));
 
-            ObjectMapper mapper = new ObjectMapper();
             String filename = "data" + (pageNum == 0 ? "" : "." + pageNum);
             File destinationFile = new File(blobRoot, filename);
             destinationFile.getParentFile().mkdirs();
-            mapper.writeValue(destinationFile, modifiedData);
+            String contents = format(modifiedData);
+            Files.write(destinationFile.toPath(), contents.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

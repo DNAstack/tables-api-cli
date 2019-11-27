@@ -2,6 +2,7 @@ package com.dnastack.ga4gh.dataset.cli.test;
 
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.output.publish.ABSPublisher;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ public class TestABSPublisher {
     public void parseABSUri() {
         String destination = "https://example.blob.core.windows.net/example-container/table";
         String tableName = "sample-table";
-        ABSPublisher publisher = new ABSPublisher(tableName,destination, false);
+        ABSPublisher publisher = new ABSPublisher(OutputMode.JSON,tableName,destination, false);
     }
 
     @Test
@@ -27,7 +28,7 @@ public class TestABSPublisher {
         final String newPreviousUrl = "data.1";
         final String newNextUrl = "data.3";
         final Pagination originalPagination = new Pagination();
-        final ABSPublisher publisher = new ABSPublisher(tableName,destination, false);
+        final ABSPublisher publisher = new ABSPublisher(OutputMode.JSON,tableName,destination, false);
         originalPagination.setPreviousPageUrl(previousUrl);
         originalPagination.setNextPageUrl(nextUrl);
 

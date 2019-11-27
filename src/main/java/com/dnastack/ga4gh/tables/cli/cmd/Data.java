@@ -2,8 +2,8 @@ package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.config.Config;
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
-import com.dnastack.ga4gh.tables.cli.fetch.TableFetcher;
-import com.dnastack.ga4gh.tables.cli.fetch.TableFetcherFactory;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcher;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcherFactory;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
@@ -33,7 +33,12 @@ public class Data extends AuthorizedCmd {
         Config config = ConfigUtil.getUserConfig();
         TableFetcher tableDataFetcher = TableFetcherFactory
             .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
-        try (OutputWriter outputWriter = outputOptions.getWriter()) {
+
+        if (outputOptions.getDestinationTableName() == null){
+            outputOptions.setDestinationTableName(tableName);
+        }
+
+        try (OutputWriter outputWriter = new OutputWriter(outputOptions)) {
             int pageNum = 0;
             Iterator<TableData> data = tableDataFetcher.getData(tableName);
             while (data.hasNext() && pageNum < maxPages) {

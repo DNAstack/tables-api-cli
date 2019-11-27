@@ -2,8 +2,8 @@ package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.config.Config;
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
-import com.dnastack.ga4gh.tables.cli.fetch.TableFetcher;
-import com.dnastack.ga4gh.tables.cli.fetch.TableFetcherFactory;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcher;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcherFactory;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
@@ -38,7 +38,7 @@ public class Query extends AuthorizedCmd {
         private String stringQuery;
 
         @Option(
-            names = {"-f", "--file"},
+            names = {"-i","--input-file"},
             description = "SQL search query contained in a file",
             required = true)
         private File fileQuery;
@@ -63,7 +63,10 @@ public class Query extends AuthorizedCmd {
         Config config = ConfigUtil.getUserConfig();
         TableFetcher tableDataFetcher = TableFetcherFactory
             .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
-        try (OutputWriter outputWriter = outputOptions.getWriter()) {
+
+
+
+        try (OutputWriter outputWriter = new OutputWriter(outputOptions)) {
             int pageNum = 0;
             if (maxPages == null) {
                 maxPages = Integer.MAX_VALUE;

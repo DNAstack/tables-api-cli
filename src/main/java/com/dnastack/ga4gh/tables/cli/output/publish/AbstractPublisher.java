@@ -4,8 +4,12 @@ import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
+import com.dnastack.ga4gh.tables.cli.output.OutputTableFormatter;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public abstract class AbstractPublisher implements Publisher {
 
@@ -13,10 +17,61 @@ public abstract class AbstractPublisher implements Publisher {
     protected final String blobRoot;
     protected final String tableName;
 
-    public AbstractPublisher(String tableName, String destination) {
+    protected OutputMode outputMode;
+
+    public AbstractPublisher(OutputMode outputMode, String tableName, String destination) {
         this.destination = destination;
         this.tableName = tableName;
         this.blobRoot = getBlobRoot(getObjectRoot(destination));
+        this.outputMode = outputMode;
+
+        if (this.outputMode == null) {
+            this.outputMode = OutputMode.JSON;
+        }
+    }
+
+
+    protected String getContentType() {
+        if (outputMode.equals(OutputMode.JSON)) {
+            return "application/json";
+        } else {
+            return "text/plain";
+        }
+    }
+
+    protected String format(Table table) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            try (OutputTableFormatter formatter = new OutputTableFormatter(outputMode, outputStream)) {
+                formatter.write(table);
+            }
+            return outputStream.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    protected String format(TableData tableData) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            try (OutputTableFormatter formatter = new OutputTableFormatter(outputMode, outputStream)) {
+                formatter.write(tableData);
+            }
+            return outputStream.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    protected String format(ListTableResponse listTableResponse) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            try (OutputTableFormatter formatter = new OutputTableFormatter(outputMode, outputStream)) {
+                formatter.write(listTableResponse);
+            }
+            return outputStream.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getBlobRoot(String root) {

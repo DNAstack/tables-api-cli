@@ -1,46 +1,38 @@
 package com.dnastack.ga4gh.tables.cli.util.option;
 
-import com.dnastack.ga4gh.tables.cli.output.FormattedOutputWriter;
-import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
-import com.dnastack.ga4gh.tables.cli.output.PublishingOutputWriter;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import picocli.CommandLine.ArgGroup;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import picocli.CommandLine;
 
 @Getter
-public class OutputOptions {
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class OutputOptions implements Cloneable {
 
-
-    @ArgGroup(heading = "Output options")
-    public ExclusiveOutputOptions outputOptions;
-
-    @Getter
-    static class ExclusiveOutputOptions {
-
-        @ArgGroup(exclusive = false, heading = "Publish options")
-        PublishOptions publishOptions;
-
-        @ArgGroup(exclusive = false, heading = "Formatting options")
-        OutputFormatOptions formatOptions;
+    public enum OutputMode {
+        JSON, TSV, CSV, TABLE;
     }
 
+    @CommandLine.Option(names = {"-f", "--format"}, description = "Valid values: ${COMPLETION-CANDIDATES}")
+    private OutputMode outputMode = null;
 
-    public OutputWriter getWriter() {
 
-        if (outputOptions == null) {
-            outputOptions = new ExclusiveOutputOptions();
-        }
+    @CommandLine.Option(names = {"-o", "--output"}, description = "Output destination")
+    private String destination = null;
 
-        ExclusiveOutputOptions exclusiveOutputOptions = getOutputOptions();
-        if (exclusiveOutputOptions.getPublishOptions() != null) {
-            PublishOptions publishOptions = exclusiveOutputOptions.getPublishOptions();
-            return new PublishingOutputWriter(publishOptions);
-        } else {
-            OutputFormatOptions outputFormatOptions = exclusiveOutputOptions.getFormatOptions();
-            if (outputFormatOptions == null) {
-                outputFormatOptions = new OutputFormatOptions();
-            }
-            return new FormattedOutputWriter(outputFormatOptions.getOutputMode(), System.out);
-        }
+    @CommandLine.Option(names = "--generate-signed-page-urls",
+        description = "When publishing to Azure Blob Storage, generates signed pagination urls (1 hr expiry).")
+    private boolean generateSASPages = false;
+
+    @CommandLine.Option(names = {"-N", "--table-name"},
+        description = "A different name to save this table to")
+    private String destinationTableName = null;
+
+    @Override
+    public OutputOptions clone() {
+        return new OutputOptions(outputMode, destination, generateSASPages, destinationTableName);
     }
-
 }

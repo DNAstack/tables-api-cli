@@ -1,4 +1,4 @@
-package com.dnastack.ga4gh.tables.cli.fetch;
+package com.dnastack.ga4gh.tables.cli.input;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
