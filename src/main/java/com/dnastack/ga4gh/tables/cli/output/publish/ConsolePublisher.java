@@ -1,17 +1,20 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
+import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
+import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileSystemPublisher extends AbstractPublisher {
+public class ConsolePublisher extends AbstractPublisher {
 
-    public FileSystemPublisher(String tableName, String destination) {
+
+    public ConsolePublisher(String tableName, String destination) {
         super(tableName, destination);
     }
 

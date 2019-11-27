@@ -1,6 +1,5 @@
 package com.dnastack.ga4gh.tables.cli.util;
 
-import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.exception.InvalidHttpStatusException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -8,31 +7,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.TimeUnit;
-import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-//import lombok.extern.slf4j.Slf4j;
-
-//@Slf4j
 public class HttpUtils {
 
 
-    private static ObjectMapper getMapper() {
+    public static ObjectMapper getMapper() {
         return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
 
     private static OkHttpClient createClient() {
+
         return new OkHttpClient.Builder().connectTimeout(10, TimeUnit.MINUTES)
             .readTimeout(10, TimeUnit.MINUTES)
             .build();
 
     }
-
 
     private static String execute(Request request) {
         OkHttpClient client = createClient();
@@ -54,6 +49,7 @@ public class HttpUtils {
     }
 
     public static String get(String url, RequestAuthorization authorization) {
+
         Request.Builder requestBuilder = new Request.Builder().url(url);
         if (authorization != null && authorization.hasAuth()) {
             requestBuilder.header("Authorization", authorization.getAuthorizationHeader());
@@ -63,7 +59,7 @@ public class HttpUtils {
     }
 
     public static String post(String url, String requestBody) {
-        return  post(url,requestBody,null);
+        return post(url, requestBody, null);
     }
 
     public static String post(String url, String requestBody, RequestAuthorization authorization) {
@@ -79,12 +75,12 @@ public class HttpUtils {
     }
 
     public static <T> T postAs(String url, String requestBody, Class<T> clazz) {
-        return postAs(url,requestBody,clazz,null);
+        return postAs(url, requestBody, clazz, null);
     }
 
     public static <T> T postAs(String url, String requestBody, Class<T> clazz, RequestAuthorization authorization) {
         try {
-            String json = post(url,requestBody,authorization);
+            String json = post(url, requestBody, authorization);
             ObjectMapper om = getMapper();
             return om.readValue(json, clazz);
         } catch (IOException ex) {
@@ -93,12 +89,12 @@ public class HttpUtils {
     }
 
     public static <T> T getAs(String url, Class<T> clazz) {
-        return getAs(url,clazz,null);
+        return getAs(url, clazz, null);
     }
 
     public static <T> T getAs(String url, Class<T> clazz, RequestAuthorization authorization) {
         try {
-            String json = get(url,authorization);
+            String json = get(url, authorization);
             ObjectMapper om = getMapper();
             return om.readValue(json, clazz);
         } catch (IOException ex) {
@@ -107,7 +103,7 @@ public class HttpUtils {
     }
 
     public static <T> T getAs(String url, TypeReference<T> typeReference) {
-       return getAs(url,typeReference,null);
+        return getAs(url, typeReference, null);
     }
 
     public static <T> T getAs(String url, TypeReference<T> typeReference, RequestAuthorization authorization) {

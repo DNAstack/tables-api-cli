@@ -1,9 +1,11 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
+import com.dnastack.ga4gh.tables.cli.config.Config;
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
+import com.dnastack.ga4gh.tables.cli.fetch.TableFetcher;
+import com.dnastack.ga4gh.tables.cli.fetch.TableFetcherFactory;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
-import com.dnastack.ga4gh.tables.cli.util.TableFetcher;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import java.io.IOException;
 import picocli.CommandLine.Command;
@@ -22,10 +24,11 @@ public class Info extends AuthorizedCmd {
 
     @Override
     public void runCmd() {
-        TableFetcher tableInfoFetcher = new TableFetcher(tableName, false, ConfigUtil.getUserConfig()
-            .getRequestAuthorization());
+        Config config = ConfigUtil.getUserConfig();
+        TableFetcher tableDataFetcher = TableFetcherFactory
+            .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
         try (OutputWriter outputWriter = outputOptions.getWriter()) {
-            Table info = tableInfoFetcher.getInfo();
+            Table info = tableDataFetcher.getInfo(tableName);
             outputWriter.write(info);
         } catch (IOException e) {
             throw new RuntimeException(e);

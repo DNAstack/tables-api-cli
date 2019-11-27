@@ -169,7 +169,7 @@ public class TestCmd {
 
     @Test
     @DisplayName("Publish To local file system works")
-    void TestPublkish() {
+    void TestPublish() {
         Path outputDirPath = null;
         try {
 

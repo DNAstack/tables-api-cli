@@ -5,6 +5,7 @@ import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
+import com.dnastack.ga4gh.tables.cli.util.AbsUtil;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageException;
@@ -24,14 +25,14 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
-public class ABSPublisher extends Publisher {
+public class ABSPublisher extends AbstractPublisher {
 
     private final String account;
     private final boolean generateSASPages;
 
     public ABSPublisher(String tableName, String destination, boolean generateSASPages) {
         super(tableName, destination);
-        this.account = getAccount(destination);
+        this.account = AbsUtil.getAccount(destination);
         this.generateSASPages = generateSASPages;
     }
 
@@ -71,9 +72,9 @@ public class ABSPublisher extends Publisher {
         String tableInfoJson = toString(table);
         String tableInfoPage = this.blobRoot + "/info";
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getConnectionString(account));
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            CloudBlobContainer container = blobClient.getContainerReference(getContainerName(destination));
+            CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
                 .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(tableInfoPage);
@@ -82,7 +83,7 @@ public class ABSPublisher extends Publisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -93,9 +94,9 @@ public class ABSPublisher extends Publisher {
         String tableInfoJson = toString(table);
         String tableInfoPage = this.destination + "/tables";
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getConnectionString(account));
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            CloudBlobContainer container = blobClient.getContainerReference(getContainerName(destination));
+            CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
                 .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(tableInfoPage);
@@ -104,7 +105,7 @@ public class ABSPublisher extends Publisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -119,9 +120,9 @@ public class ABSPublisher extends Publisher {
         String blobPage = this.blobRoot + "/data" + (pageNum == 0 ? "" : "." + pageNum);
 
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getConnectionString(account));
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            CloudBlobContainer container = blobClient.getContainerReference(getContainerName(destination));
+            CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
                 .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(blobPage);
@@ -135,7 +136,7 @@ public class ABSPublisher extends Publisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", getContainerName(destination), e.getMessage()));
+                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e.getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -144,27 +145,7 @@ public class ABSPublisher extends Publisher {
 
     @Override
     public String getObjectRoot(String destination) {
-        String path = URI.create(destination).getPath();
-        return path.substring(path.indexOf('/', 1) + 1);
-    }
-
-    private String getAccount(String destination) {
-        String host = URI.create(destination).getHost();
-        return host.substring(0, host.indexOf('.'));
-    }
-
-    private String getContainerName(String destination) {
-        String path = URI.create(destination).getPath();
-        if (path.startsWith("/")) {
-            return path.substring(1, path.indexOf('/', 1));
-        }
-        return path.substring(0, path.indexOf('/'));
-    }
-
-    private String getConnectionString(String account) {
-        final String STORAGE_CONNECTION_STRING_TEMPLATE = "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s";
-        return String
-            .format(STORAGE_CONNECTION_STRING_TEMPLATE, account, ConfigUtil.getUserConfig().getAbsAccountKey());
+        return AbsUtil.getObjectRoot(destination);
     }
 
     private Pagination getSASPagination(Pagination oldPagination) {

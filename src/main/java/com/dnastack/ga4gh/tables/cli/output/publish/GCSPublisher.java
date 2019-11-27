@@ -4,22 +4,20 @@ import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Pagination;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
+import com.dnastack.ga4gh.tables.cli.util.GcsUtil;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class GCSPublisher extends Publisher {
+public class GCSPublisher extends AbstractPublisher {
 
     private final String GCS_URL = "https://storage.cloud.google.com";
 
     private final String bucket;
 
-    //TODO: If this is _only_ supposed to publish search spec compatible datasets,
-    // We should either enforce or automatically append /datasets to the bucket URI.
+
     public GCSPublisher(String tableName, String destination) {
         super(tableName, destination);
         if (destination == null) {
@@ -29,7 +27,7 @@ public class GCSPublisher extends Publisher {
         if (!destination.startsWith("gs://")) {
             throw new RuntimeException("Publish destinations must be GCS URIs.");
         }
-        this.bucket = getBucket(destination);
+        this.bucket = GcsUtil.getBucket(destination);
     }
 
     public String getBucket() {
@@ -109,25 +107,9 @@ public class GCSPublisher extends Publisher {
     }
 
 
-    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)(/(?<object>.+)*)$");
-
-    public String getBucket(String gsUrl) {
-        Matcher matcher = GSPattern.matcher(gsUrl);
-        if (matcher.find()) {
-            return matcher.group("bucket");
-        } else {
-            throw new IllegalArgumentException("Could not handle transfer, this is not a google file");
-        }
-    }
-
     @Override
     public String getObjectRoot(String gsUrl) {
-        Matcher matcher = GSPattern.matcher(gsUrl);
-        if (matcher.find()) {
-            return matcher.group("object");
-        } else {
-            return "table";
-        }
+        return GcsUtil.getObjectRoot(gsUrl);
     }
 
 }

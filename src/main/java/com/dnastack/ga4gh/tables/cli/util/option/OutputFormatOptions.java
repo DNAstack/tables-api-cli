@@ -11,6 +11,6 @@ public class OutputFormatOptions {
     }
 
     @CommandLine.Option(names = {"-o", "--output"}, description = "Valid values: ${COMPLETION-CANDIDATES}")
-    private OutputMode outputMode = OutputMode.TABLE;
+    private OutputMode outputMode = null;
 
 }
