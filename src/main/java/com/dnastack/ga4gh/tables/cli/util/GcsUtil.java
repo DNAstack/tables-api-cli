@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class GcsUtil {
 
-    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)(/(?<object>.*))?$");
+    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)(?<object>.*)$");
 
     public static String getBucket(String gsUrl) {
         Matcher matcher = GSPattern.matcher(gsUrl);
@@ -20,12 +20,16 @@ public class GcsUtil {
     public static String getObjectRoot(String gsUrl) {
         Matcher matcher = GSPattern.matcher(gsUrl);
         if (matcher.find()) {
-            String obj = matcher.group("object");
-            if (obj != null && obj.equals("")) {
-                return "table";
-            } else {
-                return obj;
+            String object = matcher.group("object");
+            if (object == null) {
+                object = "table";
+            } else if (object.equals("/") || object.equals("")) {
+                object = "table";
+            } else if (object.startsWith("/")) {
+                object = object.substring(1);
             }
+
+            return object;
         } else {
             return "table";
         }
