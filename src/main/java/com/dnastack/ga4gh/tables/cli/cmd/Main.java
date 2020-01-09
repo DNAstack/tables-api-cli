@@ -5,7 +5,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.RunLast;
 
-@Command(name = "tables", mixinStandardHelpOptions = true)
+import java.io.IOException;
+import java.util.Properties;
+
+
+@Command(name = "tables", mixinStandardHelpOptions = true, version = {"tables-api-cli Version : ${tables-api-cli-version}"})
 public class Main extends BaseCmd {
 
     private static CommandLine commandLine = setup();
@@ -14,7 +18,10 @@ public class Main extends BaseCmd {
         return commandLine.execute(args);
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
+        final Properties properties = new Properties();
+        properties.load(Main.class.getClassLoader().getResourceAsStream(".properties"));
+        System.setProperty("tables-api-cli-version", properties.getProperty("tables-api-cli-version"));
         System.exit(runCommand(args));
     }
 

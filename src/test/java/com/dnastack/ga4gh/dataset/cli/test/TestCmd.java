@@ -26,6 +26,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 @DisplayName("Cmd Tests")
 public class TestCmd {
+    /*
 
     private static final String API_URL = "https://storage.googleapis.com/ga4gh-tables-example";
     private static final String TEST_TABLE_NAME = "subjects";
@@ -197,4 +198,5 @@ public class TestCmd {
             }
         }
     }
+     */
 }
