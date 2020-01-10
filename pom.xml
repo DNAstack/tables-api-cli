@@ -5,7 +5,7 @@
 
   <groupId>com.dnastack.ga4gh</groupId>
   <artifactId>tables-api-cli</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-0.2.1-55-gc484f8b</version>
   <name>tables-api-cli</name>
   <description>Tables API Command-line Client</description>
 
