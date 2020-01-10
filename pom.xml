@@ -42,7 +42,7 @@
     <dependency>
       <groupId>com.dnastack.ddap</groupId>
       <artifactId>ddap-cli</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0-15-g8298871</version>
     </dependency>
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
