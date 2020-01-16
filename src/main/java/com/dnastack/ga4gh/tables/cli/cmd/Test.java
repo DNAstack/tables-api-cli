@@ -76,7 +76,7 @@ public class Test extends AuthorizedCmd {
 
         sampleData.setDataModel(dataModel);
 
-        GCSPublisher publisher = new GCSPublisher(OutputOptions.OutputMode.JSON, tableName , config.getApiUrl());
+        AWSPublisher publisher = new AWSPublisher(OutputOptions.OutputMode.JSON, tableName , config.getApiUrl());
         //assert publisher.getBucket().equals("fizz-dev-test");
 
         publisher.publish(sampleTableInfo);

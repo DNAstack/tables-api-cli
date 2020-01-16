@@ -1,17 +1,14 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.AwsUtil;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
-
-
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.sync.RequestBody;
 
 public class AWSPublisher extends AbstractPublisher {
 
@@ -47,11 +44,9 @@ public class AWSPublisher extends AbstractPublisher {
         String tableInfoJson = format(table);
         String tableInfoPage = this.blobRoot + "/info";
 
-        Region region = Region.CA_CENTRAL_1;
-        S3Client s3 = S3Client.builder().region(region).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
 
-        s3.putObject(PutObjectRequest.builder().bucket(this.bucket).key(tableInfoPage)
-                .build(),RequestBody.fromBytes(tableInfoJson.getBytes()));
+        s3Client.putObject(this.bucket, tableInfoPage, tableInfoJson);
     }
 
     @Override
@@ -59,11 +54,9 @@ public class AWSPublisher extends AbstractPublisher {
         String tableListJson = format(table);
         String root = AwsUtil.getObjectRoot(destination);
         String tableListPage = root == null ?  "tables" : root + "/tables";
-        Region region = Region.CA_CENTRAL_1;
-        S3Client s3 = S3Client.builder().region(region).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
 
-        s3.putObject(PutObjectRequest.builder().bucket(this.bucket).key(tableListPage)
-                        .build(),RequestBody.fromBytes(tableListJson.getBytes()));
+        s3Client.putObject(this.bucket, tableListPage, tableListJson);
     }
 
     @Override
@@ -82,11 +75,9 @@ public class AWSPublisher extends AbstractPublisher {
 
         String blobPage = this.blobRoot + "/data" + (pageNum > 0 ? "." + pageNum : "");
 
-        Region region = Region.CA_CENTRAL_1;
-        S3Client s3 = S3Client.builder().region(region).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
 
-        s3.putObject(PutObjectRequest.builder().bucket(this.bucket).key(blobPage)
-                .build(),RequestBody.fromBytes(datasetJson.getBytes()));
+        s3Client.putObject(this.bucket, blobPage, datasetJson);
 
         //TODO: Create blob ACL just for this user
     }
