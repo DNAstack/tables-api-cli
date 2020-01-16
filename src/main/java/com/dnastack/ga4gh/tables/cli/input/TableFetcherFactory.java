@@ -14,6 +14,8 @@ public class TableFetcherFactory {
             return new FileSystemTableFetcher(new File(uri.getPath()).getAbsolutePath(), recurse, authorization);
         } else if (uri.getScheme().equals("gs")) {
             return new GcsTableFetcher(apiUrl, recurse, authorization);
+        } else if (uri.getScheme().equals("s3")) {
+            return new AWSTableFetcher(apiUrl, recurse, authorization);
         } else if (uri.getScheme().equals("https") && uri.getHost().endsWith("blob.core.windows.net")) {
             return new ABSTableFetcher(apiUrl, recurse, authorization);
         } else if (uri.getScheme().equals("http") || uri.getScheme().equals("https")) {

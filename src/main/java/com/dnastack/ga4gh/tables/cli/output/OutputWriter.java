@@ -40,7 +40,7 @@ public class OutputWriter implements Closeable {
                 .endsWith("blob.core.windows.net")) {
                 publisher = new ABSPublisher(mode, tableName, destination, publishOptions.isGenerateSASPages());
             } else {
-                throw new IllegalArgumentException("No Outut writers defined");
+                throw new IllegalArgumentException("No Output writers defined");
             }
         }
     }
