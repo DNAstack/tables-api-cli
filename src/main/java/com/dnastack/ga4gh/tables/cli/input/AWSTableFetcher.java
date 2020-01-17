@@ -1,7 +1,6 @@
 package com.dnastack.ga4gh.tables.cli.input;
 
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
+
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -19,6 +18,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 
 
 import java.io.IOException;
@@ -87,8 +87,7 @@ public class AWSTableFetcher extends AbstractTableFetcher {
         String key_name = AwsUtil.getObjectRoot(awsUrl);
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
         try {
-            S3Object o = s3.getObject(bucket_name, key_name);
-            S3ObjectInputStream s3is = o.getObjectContent();
+            S3ObjectInputStream s3is = s3.getObject(bucket_name, key_name).getObjectContent();
             return displayTextInputStream(s3is);
         } catch (AmazonServiceException e) {
             System.err.println(e.getErrorMessage());
@@ -100,11 +99,11 @@ public class AWSTableFetcher extends AbstractTableFetcher {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line = null;
-            String output = "";
+            StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                output += line;
+                output.append(line);
             }
-            return output;
+            return output.toString();
         } catch (IOException e) {
             return null;
         }

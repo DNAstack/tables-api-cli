@@ -38,48 +38,36 @@ public class AWSPublisher extends AbstractPublisher {
 
     @Override
     public void publish(Table table) {
-        if (!tableName.equals(table.getName())) {
-            table.setName(tableName);
-        }
+        if (!tableName.equals(table.getName())) table.setName(tableName);
         String tableInfoJson = format(table);
         String tableInfoPage = this.blobRoot + "/info";
 
         final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
-
         s3Client.putObject(this.bucket, tableInfoPage, tableInfoJson);
     }
 
     @Override
     public void publish(ListTableResponse table) {
         String tableListJson = format(table);
-        String root = AwsUtil.getObjectRoot(destination);
-        String tableListPage = root == null ?  "tables" : root + "/tables";
-        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
+        String tableListPage = AwsUtil.getObjectRoot(destination) + "/tables";
 
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
         s3Client.putObject(this.bucket, tableListPage, tableListJson);
     }
 
     @Override
     public void publish(TableData tableData, int pageNum) {
-
-        if (this.blobRoot == null){
-            return;
-        }
-
+        if (this.blobRoot == null) return;
         TableData modifiedData = new TableData();
-        //Throws error when null, should it throw a specific exception message
+
         modifiedData.setDataModel(tableData.getDataModel());
         modifiedData.setData(tableData.getData());
         modifiedData.setPagination(getAbsolutePagination(tableData.getPagination(), pageNum));
-        String datasetJson = format(modifiedData);
-
-        String blobPage = this.blobRoot + "/data" + (pageNum > 0 ? "." + pageNum : "");
+        String dataJson = format(modifiedData);
+        String dataPage = this.blobRoot + "/data" + (pageNum > 0 ? "." + pageNum : "");
 
         final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
-
-        s3Client.putObject(this.bucket, blobPage, datasetJson);
-
-        //TODO: Create blob ACL just for this user
+        s3Client.putObject(this.bucket, dataPage, dataJson);
     }
 
 
