@@ -57,7 +57,7 @@ public class GCSPublisher extends AbstractPublisher {
     public void publish(ListTableResponse table) {
         String tableInfoJson = format(table);
         String root = GcsUtil.getObjectRoot(destination);
-        String tableInfoPage = root == null ? "tables" : root + "/tables";
+        String tableInfoPage = this.destination + "/tables";
         Storage storage = StorageOptions.getDefaultInstance().getService();
         BlobId blobId = BlobId.of(this.bucket, tableInfoPage);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(getContentType()).build();

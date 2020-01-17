@@ -29,7 +29,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
 
 
     protected String getListAbsoluteUrl() {
-        return rootApiTarget + "/" + TABLE_GET_ENDPOINT + "/" + TABLE_LIST_ENDPOINT;
+        return rootApiTarget + "/" + TABLE_LIST_ENDPOINT;
     }
 
     protected String getInfoAbsoluteUrl(String tableName) {

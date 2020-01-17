@@ -49,7 +49,7 @@ public class AWSPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         String tableListJson = format(table);
-        String tableListPage = AwsUtil.getObjectRoot(destination) + "/tables";
+        String tableListPage = this.destination + "/tables";
 
         final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
         s3Client.putObject(this.bucket, tableListPage, tableListJson);

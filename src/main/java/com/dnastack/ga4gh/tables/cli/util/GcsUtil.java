@@ -34,6 +34,4 @@ public class GcsUtil {
             return "table";
         }
     }
-
-
 }
