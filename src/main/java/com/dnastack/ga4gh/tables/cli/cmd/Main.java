@@ -28,8 +28,9 @@ public class Main extends BaseCmd {
             System.out.println("There was an issue reading the version value. The cause was most likely a\n" +
                                "compilation error with the .jar file. Please try re-downloading the file\n" +
                                "from our official github repo : https://github.com/DNAstack/tables-api-cli\n\n" +
-                               "You may continue using this API as all other functionality should be unaffected by\n" +
-                               "this error. If you encounter any more issues, please re-download the file.\n");
+                               "You may continue using this CLI as all other functionality should be \n" +
+                               "unaffected by this error. If you encounter any more issues, please .\n" +
+                               "re-download the file. \n");
         }
 
         System.exit(runCommand(args));
