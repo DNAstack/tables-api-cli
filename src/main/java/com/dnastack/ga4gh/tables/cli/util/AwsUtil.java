@@ -7,8 +7,8 @@ public class AwsUtil {
 
     private final static Pattern AWSPattern = Pattern.compile("^s3://(?<bucket>[0-9a-zA-Z_\\-.]+)(?<object>.*)$");
 
-    public static String getBucket(String gsUrl) {
-        Matcher matcher = AWSPattern.matcher(gsUrl);
+    public static String getBucket(String s3Url) {
+        Matcher matcher = AWSPattern.matcher(s3Url);
         if (matcher.find()) {
             return matcher.group("bucket");
         } else {
@@ -17,8 +17,8 @@ public class AwsUtil {
     }
 
 
-    public static String getObjectRoot(String gsUrl) {
-        Matcher matcher = AWSPattern.matcher(gsUrl);
+    public static String getObjectRoot(String s3Url) {
+        Matcher matcher = AWSPattern.matcher(s3Url);
         if (matcher.find()) {
             String object = matcher.group("object");
             if (object == null) {

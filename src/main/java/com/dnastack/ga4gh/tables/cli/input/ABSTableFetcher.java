@@ -12,8 +12,8 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -60,26 +60,7 @@ public class ABSTableFetcher extends AbstractTableFetcher {
         return info;
     }
 
-
-    private <T> T getBlobAs(String absUrl, Class<T> clazz) {
-        String data = getBlobData(absUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private <T> T getBlobAs(String absUrl, TypeReference<T> typeReference) {
-        String data = getBlobData(absUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, typeReference);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getBlobData(String absUrl) {
+    protected String getBlobData(String absUrl) {
         try {
             String account = AbsUtil.getAccount(absUrl);
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
@@ -93,10 +74,10 @@ public class ABSTableFetcher extends AbstractTableFetcher {
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (
-            StorageException e) {
+                StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(absUrl), e
-                    .getMessage()));
+                    .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(absUrl), e
+                            .getMessage()));
         }
     }
 

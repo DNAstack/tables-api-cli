@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -58,25 +58,7 @@ public class GcsTableFetcher extends AbstractTableFetcher {
         return info;
     }
 
-    private <T> T getBlobAs(String gsUrl, Class<T> clazz) {
-        String data = getBlobData(gsUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private <T> T getBlobAs(String gsUrl, TypeReference<T> typeReference) {
-        String data = getBlobData(gsUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, typeReference);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getBlobData(String gsUrl) {
+    protected String getBlobData(String gsUrl) {
         Blob blob = storage.get(GcsUtil.getBucket(gsUrl), GcsUtil.getObjectRoot(gsUrl));
         if (!blob.exists()) {
             throw new IllegalArgumentException("No file exists at destination: " + gsUrl);

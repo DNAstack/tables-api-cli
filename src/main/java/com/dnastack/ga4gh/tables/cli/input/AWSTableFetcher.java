@@ -1,6 +1,11 @@
 package com.dnastack.ga4gh.tables.cli.input;
 
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -9,19 +14,12 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-
-import com.amazonaws.AmazonServiceException;
-
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-
-
-import java.io.IOException;
 
 public class AWSTableFetcher extends AbstractTableFetcher {
 
@@ -63,28 +61,9 @@ public class AWSTableFetcher extends AbstractTableFetcher {
         return info;
     }
 
-    private <T> T getBlobAs(String gsUrl, Class<T> clazz) {
-        String data = getBlobData(gsUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private <T> T getBlobAs(String gsUrl, TypeReference<T> typeReference) {
-        String data = getBlobData(gsUrl);
-        try {
-            return HttpUtils.getMapper().readValue(data, typeReference);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getBlobData(String awsUrl) {
-
-        String bucket_name = AwsUtil.getBucket(awsUrl);
-        String key_name = AwsUtil.getObjectRoot(awsUrl);
+    protected String getBlobData(String s3Url) {
+        String bucket_name = AwsUtil.getBucket(s3Url);
+        String key_name = AwsUtil.getObjectRoot(s3Url);
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
         try {
             S3ObjectInputStream s3is = s3.getObject(bucket_name, key_name).getObjectContent();

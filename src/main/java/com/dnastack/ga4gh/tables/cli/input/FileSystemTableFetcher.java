@@ -6,6 +6,7 @@ import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,13 +48,13 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     @Override
     public Table getInfo(String tableName) {
         Table info = getFileAs(getInfoAbsoluteUrl(tableName), Table.class);
-        info.setDataModel(resolveRefs(info.getDataModel(),getInfoAbsoluteUrl(tableName)));
+        info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 
     private <T> T getFileAs(String path, Class<T> clazz) {
         try {
-            String data = getFileData(path);
+            String data = getBlobData(path);
             return HttpUtils.getMapper().readValue(data, clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -62,14 +63,14 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
 
     private <T> T getFileAs(String path, TypeReference<T> typeReference) {
         try {
-            String data = getFileData(path);
+            String data = getBlobData(path);
             return HttpUtils.getMapper().readValue(data, typeReference);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String getFileData(String path) throws IOException {
+    protected String getBlobData(String path) throws IOException {
         File file = new File(path);
         return Files.readString(file.toPath());
     }
