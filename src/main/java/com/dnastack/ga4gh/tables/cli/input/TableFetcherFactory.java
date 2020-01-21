@@ -1,6 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.input;
 
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
+
 import java.io.File;
 import java.net.URI;
 

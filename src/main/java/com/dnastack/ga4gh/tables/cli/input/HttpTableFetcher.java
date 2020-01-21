@@ -7,7 +7,6 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -54,7 +53,7 @@ public class HttpTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    String getBlobData(String s3Url) throws IOException {
+    String getBlobData(String s3Url) {
         return null;
     }
 }

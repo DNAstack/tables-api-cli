@@ -9,13 +9,8 @@ import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
-import com.microsoft.azure.storage.blob.BlobRequestOptions;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
-import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
+import com.microsoft.azure.storage.blob.*;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -75,15 +70,15 @@ public class ABSPublisher extends AbstractPublisher {
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
             CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
-                .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
+                    .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(tableInfoPage);
             blob.uploadFromByteArray(tableInfoJson.getBytes(), 0, tableInfoJson.getBytes().length);
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
-                    .getMessage()));
+                    .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                            .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -92,21 +87,21 @@ public class ABSPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         String tableInfoJson = format(table);
-        String tableInfoPage = this.destination + "/tables";
+        String tableInfoPage = noForwardSlash(this.destination) + "/tables";
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
             CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
-                .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
+                    .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(tableInfoPage);
             blob.uploadFromByteArray(tableInfoJson.getBytes(), 0, tableInfoJson.getBytes().length);
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
-                    .getMessage()));
+                    .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                            .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }
@@ -125,7 +120,7 @@ public class ABSPublisher extends AbstractPublisher {
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
             CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(destination));
             container
-                .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
+                    .createIfNotExists(BlobContainerPublicAccessType.OFF, new BlobRequestOptions(), new OperationContext());
             CloudBlockBlob blob = container.getBlockBlobReference(blobPage);
             if (generateSASPages) {
                 modifiedData.setPagination(generateSASPagination(container, modifiedData.getPagination()));
@@ -137,8 +132,8 @@ public class ABSPublisher extends AbstractPublisher {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
         } catch (StorageException e) {
             throw new RuntimeException(String
-                .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
-                    .getMessage()));
+                    .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(destination), e
+                            .getMessage()));
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload blob: " + e.getMessage());
         }

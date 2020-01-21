@@ -2,7 +2,6 @@ package com.dnastack.ga4gh.tables.cli.input;
 
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -64,7 +63,7 @@ public class AWSTableFetcher extends AbstractTableFetcher {
     protected String getBlobData(String s3Url) {
         String bucket_name = AwsUtil.getBucket(s3Url);
         String key_name = AwsUtil.getObjectRoot(s3Url);
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
         try {
             S3ObjectInputStream s3is = s3.getObject(bucket_name, key_name).getObjectContent();
             return displayTextInputStream(s3is);

@@ -1,5 +1,6 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
+import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.util.Importer;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -172,7 +173,9 @@ public class Import extends BaseCmd {
         }
 
         csvFormat = applyFormatOptions(csvFormat);
-
+        if (outputOptions.getDestination() == null){
+            outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
+        }
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
             try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
                 importCsvRecords(importer, schema, csvParser);

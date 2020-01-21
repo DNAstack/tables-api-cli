@@ -1,7 +1,6 @@
 package com.dnastack.ga4gh.tables.cli.output.publish;
 
 
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
@@ -42,16 +41,17 @@ public class AWSPublisher extends AbstractPublisher {
         String tableInfoJson = format(table);
         String tableInfoPage = this.blobRoot + "/info";
 
-        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
         s3Client.putObject(this.bucket, tableInfoPage, tableInfoJson);
     }
 
     @Override
     public void publish(ListTableResponse table) {
+        //if (table.getTables().get(0) table.setName(tableName);
         String tableListJson = format(table);
-        String tableListPage = this.destination + "/tables";
+        String tableListPage = "tables";
 
-        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
         s3Client.putObject(this.bucket, tableListPage, tableListJson);
     }
 
@@ -66,7 +66,7 @@ public class AWSPublisher extends AbstractPublisher {
         String dataJson = format(modifiedData);
         String dataPage = this.blobRoot + "/data" + (pageNum > 0 ? "." + pageNum : "");
 
-        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.CA_CENTRAL_1).build();
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
         s3Client.putObject(this.bucket, dataPage, dataJson);
     }
 

@@ -3,13 +3,10 @@ package com.dnastack.ga4gh.tables.cli.output;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
-import com.dnastack.ga4gh.tables.cli.output.publish.ABSPublisher;
-import com.dnastack.ga4gh.tables.cli.output.publish.ConsolePublisher;
-import com.dnastack.ga4gh.tables.cli.output.publish.FileSystemPublisher;
-import com.dnastack.ga4gh.tables.cli.output.publish.GCSPublisher;
-import com.dnastack.ga4gh.tables.cli.output.publish.Publisher;
+import com.dnastack.ga4gh.tables.cli.output.publish.*;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
@@ -26,7 +23,7 @@ public class OutputWriter implements Closeable {
                 publishOptions.setOutputMode(OutputMode.TABLE);
             }
             publisher = new ConsolePublisher(publishOptions.getOutputMode(), publishOptions
-                .getDestinationTableName(), null);
+                    .getDestinationTableName(), null);
         } else {
             URI publishUri = URI.create(publishOptions.getDestination());
             String destination = publishOptions.getDestination();
@@ -36,8 +33,10 @@ public class OutputWriter implements Closeable {
                 publisher = new FileSystemPublisher(mode, tableName, destination);
             } else if (publishUri.getScheme().equals("gs")) {
                 publisher = new GCSPublisher(mode, tableName, destination);
+            } else if (publishUri.getScheme().equals("s3")) {
+                publisher = new AWSPublisher(mode, tableName, destination);
             } else if (publishUri.getScheme().equals("https") && publishUri.getHost()
-                .endsWith("blob.core.windows.net")) {
+                    .endsWith("blob.core.windows.net")) {
                 publisher = new ABSPublisher(mode, tableName, destination, publishOptions.isGenerateSASPages());
             } else {
                 throw new IllegalArgumentException("No Output writers defined");

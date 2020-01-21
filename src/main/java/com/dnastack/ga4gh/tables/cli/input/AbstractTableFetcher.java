@@ -99,7 +99,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
 
     protected abstract TableData getDataPage(String conext);
 
-    <T> T getBlobAs(String gsUrl, Class<T> clazz) {
+    protected <T> T getBlobAs(String gsUrl, Class<T> clazz) {
         String data = getBlobData(gsUrl);
         try {
             return HttpUtils.getMapper().readValue(data, clazz);
@@ -108,7 +108,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    <T> T getBlobAs(String gsUrl, TypeReference<T> typeReference) {
+    protected <T> T getBlobAs(String gsUrl, TypeReference<T> typeReference) {
         String data = getBlobData(gsUrl);
         try {
             return HttpUtils.getMapper().readValue(data, typeReference);
@@ -117,7 +117,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    abstract String getBlobData(String s3Url) throws IOException;
+    abstract String getBlobData(String s3Url);
 
 
     public class TableDataIterator implements Iterator<TableData> {

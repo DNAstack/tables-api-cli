@@ -8,6 +8,7 @@ import com.dnastack.ga4gh.tables.cli.output.OutputTableFormatter;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -108,4 +109,14 @@ public abstract class AbstractPublisher implements Publisher {
             throw new RuntimeException("Unable to process dataset JSON", e);
         }
     }
+
+    public String noForwardSlash(String root) {
+        if (root == null) {
+            return null;
+        } else if (root.endsWith("/")) {
+            root = root.substring(0, root.length() - 1);
+        }
+        return root;
+    }
 }
+

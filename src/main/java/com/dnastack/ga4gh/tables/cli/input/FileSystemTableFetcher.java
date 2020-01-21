@@ -36,6 +36,11 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
+    String getBlobData(String s3Url) {
+        return null;
+    }
+
+    @Override
     public ListTableResponse list() {
         return getFileAs(getListAbsoluteUrl(), ListTableResponse.class);
     }
@@ -54,7 +59,7 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
 
     private <T> T getFileAs(String path, Class<T> clazz) {
         try {
-            String data = getBlobData(path);
+            String data = getFileData(path);
             return HttpUtils.getMapper().readValue(data, clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,14 +68,14 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
 
     private <T> T getFileAs(String path, TypeReference<T> typeReference) {
         try {
-            String data = getBlobData(path);
+            String data = getFileData(path);
             return HttpUtils.getMapper().readValue(data, typeReference);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected String getBlobData(String path) throws IOException {
+    private String getFileData(String path) throws IOException {
         File file = new File(path);
         return Files.readString(file.toPath());
     }

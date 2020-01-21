@@ -5,15 +5,9 @@ import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.GcsUtil;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 
 public class GCSPublisher extends AbstractPublisher {
-
-    private final String GCS_URL = "https://storage.cloud.google.com";
 
     private final String bucket;
 
@@ -56,8 +50,7 @@ public class GCSPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         String tableInfoJson = format(table);
-        String root = GcsUtil.getObjectRoot(destination);
-        String tableInfoPage = this.destination + "/tables";
+        String tableInfoPage = "tables";
         Storage storage = StorageOptions.getDefaultInstance().getService();
         BlobId blobId = BlobId.of(this.bucket, tableInfoPage);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(getContentType()).build();
