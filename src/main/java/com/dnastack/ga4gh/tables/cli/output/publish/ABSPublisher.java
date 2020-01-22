@@ -87,7 +87,7 @@ public class ABSPublisher extends AbstractPublisher {
     @Override
     public void publish(ListTableResponse table) {
         String tableInfoJson = format(table);
-        String tableInfoPage = noForwardSlash(this.destination) + "/tables";
+        String tableInfoPage = this.destination + "/tables";
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();

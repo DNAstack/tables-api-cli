@@ -31,8 +31,8 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String conext) {
-        return getFileAs(conext, TableData.class);
+    protected TableData getDataPage(String url) {
+        return getFileAs(url, TableData.class);
     }
 
     @Override

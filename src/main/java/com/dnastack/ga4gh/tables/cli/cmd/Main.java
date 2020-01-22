@@ -21,7 +21,6 @@ public class Main extends BaseCmd {
     private static CommandLine setup() {
         return new CommandLine(new Main())
                 .addSubcommand(new ConfigCmd())
-                .addSubcommand(new Test())
                 .addSubcommand(new Info())
                 .addSubcommand(new Data())
                 .addSubcommand(new ListTables())

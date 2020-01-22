@@ -97,10 +97,10 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         return new TableDataIterator(getDataAbsoluteUrl(tableName));
     }
 
-    protected abstract TableData getDataPage(String conext);
+    protected abstract TableData getDataPage(String url);
 
-    protected <T> T getBlobAs(String gsUrl, Class<T> clazz) {
-        String data = getBlobData(gsUrl);
+    protected <T> T getBlobAs(String url, Class<T> clazz) {
+        String data = getBlobData(url);
         try {
             return HttpUtils.getMapper().readValue(data, clazz);
         } catch (IOException e) {
@@ -108,8 +108,8 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    protected <T> T getBlobAs(String gsUrl, TypeReference<T> typeReference) {
-        String data = getBlobData(gsUrl);
+    protected <T> T getBlobAs(String url, TypeReference<T> typeReference) {
+        String data = getBlobData(url);
         try {
             return HttpUtils.getMapper().readValue(data, typeReference);
         } catch (IOException e) {

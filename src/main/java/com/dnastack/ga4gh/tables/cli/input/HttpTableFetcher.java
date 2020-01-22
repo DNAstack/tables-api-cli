@@ -48,8 +48,8 @@ public class HttpTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String conext) {
-        return HttpUtils.getAs(conext, TableData.class, authorization);
+    protected TableData getDataPage(String url) {
+        return HttpUtils.getAs(url, TableData.class, authorization);
     }
 
     @Override

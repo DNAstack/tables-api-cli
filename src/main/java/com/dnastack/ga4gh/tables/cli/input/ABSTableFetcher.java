@@ -39,8 +39,8 @@ public class ABSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String conext) {
-        return getBlobAs(conext, TableData.class);
+    protected TableData getDataPage(String url) {
+        return getBlobAs(url, TableData.class);
     }
 
     @Override

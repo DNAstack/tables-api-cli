@@ -39,8 +39,8 @@ public class AWSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public TableData getDataPage(String conext) {
-        return getBlobAs(conext, TableData.class);
+    public TableData getDataPage(String url) {
+        return getBlobAs(url, TableData.class);
     }
 
     @Override

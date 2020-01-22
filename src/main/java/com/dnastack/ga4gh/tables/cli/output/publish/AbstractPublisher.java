@@ -109,14 +109,4 @@ public abstract class AbstractPublisher implements Publisher {
             throw new RuntimeException("Unable to process dataset JSON", e);
         }
     }
-
-    public String noForwardSlash(String root) {
-        if (root == null) {
-            return null;
-        } else if (root.endsWith("/")) {
-            root = root.substring(0, root.length() - 1);
-        }
-        return root;
-    }
 }
-
