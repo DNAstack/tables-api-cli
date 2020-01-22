@@ -47,7 +47,11 @@ public class AWSPublisher extends AbstractPublisher {
 
     @Override
     public void publish(ListTableResponse table) {
-        //if (table.getTables().get(0) table.setName(tableName);
+        // TEMPORARY FIX : NEED TO MAKE SURE THAT THE TABLES
+        // LIST IS BEING APPENDED PROPERLY WHEN NEW TABLES ARE
+        // ADDED, THEN ADDRESS WHEN TO SET NAME
+        table.getTables().get(0).setName(tableName);
+        //
         String tableListJson = format(table);
         String tableListPage = "tables";
 
