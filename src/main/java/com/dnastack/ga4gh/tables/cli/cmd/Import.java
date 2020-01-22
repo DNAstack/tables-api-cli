@@ -173,6 +173,11 @@ public class Import extends BaseCmd {
             outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
         }
 
+        if (outputOptions.getDestinationTableName() == null) {
+            File f = new File(inputFile);
+            outputOptions.setDestinationTableName(f.getName().replace('.', '_'));
+        }
+
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
             try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
                 importCsvRecords(importer, schema, csvParser);

@@ -9,14 +9,11 @@ import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +43,7 @@ public class Importer implements Closeable {
 
         if (tableDest != null) {
             tablePublishOptions
-                .setDestination(tableDest.endsWith("/") ? tableDest + TABLE_DIR : tableDest + "/" + TABLE_DIR);
+                    .setDestination(tableDest.endsWith("/") ? tableDest + TABLE_DIR : tableDest + "/" + TABLE_DIR);
         }
 
         listWriter = new OutputWriter(outputOptions);
@@ -63,8 +60,8 @@ public class Importer implements Closeable {
     private LinkedHashMap<String, Object> readDataModel(String pathToDataModel) {
         try {
             return objectMapper
-                .readValue(new File(pathToDataModel), new TypeReference<LinkedHashMap<String, Object>>() {
-                });
+                    .readValue(new File(pathToDataModel), new TypeReference<LinkedHashMap<String, Object>>() {
+                    });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -107,6 +104,7 @@ public class Importer implements Closeable {
 
     private void writeTablesList() {
         Table tableInfo = new Table();
+        tableInfo.setName(tablePublishOptions.getDestinationTableName());
         tableInfo.setDescription(description);
         tableInfo.setDataModel(dataModel);
         ListTableResponse listTableResponse = new ListTableResponse();
