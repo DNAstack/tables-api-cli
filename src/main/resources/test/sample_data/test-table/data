@@ -1,0 +1,46 @@
+{
+    "data": [
+        {
+            "name": "Toronto",
+            "location": "Ontario, Canada",
+            "language": "English",
+            "population": 5928040,
+            "updated_year": 2016
+        },
+        {
+            "name": "Montréal",
+            "location": "Québec, Canada",
+            "language": "French",
+            "population": 5928040,
+            "updated_year": 2016
+        },
+        {
+            "name": "Ottawa",
+            "location": "Ontario, Canada",
+            "language": "English/French",
+            "population": 934243,
+            "updated_year": 2016
+        },
+        {
+            "name": "Vancouver",
+            "location": "British Columbia, Canada",
+            "language": "English",
+            "population": 2463431,
+            "updated_year": 2016
+        },
+        {
+            "name": "Calgary",
+            "location": "Alberta, Canada",
+            "language": "English",
+            "population": 2463431,
+            "updated_year": 2016
+        }
+    ],
+    "data_model": {
+        "$ref": "data_models/city.json"
+    },
+    "pagination": {
+        "next_page_url": null,
+        "previous_page_url": null
+    }
+}

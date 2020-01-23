@@ -27,6 +27,7 @@
     <version.picocli>4.0.4</version.picocli>
     <version.asciitable>0.3.2</version.asciitable>
     <version.okhttp>4.0.1</version.okhttp>
+    <version.amazonaws>1.11.707</version.amazonaws>
     <junit.jupiter.version>5.5.1</junit.jupiter.version>
 
   </properties>
@@ -105,6 +106,11 @@
       <artifactId>jsonassert</artifactId>
       <version>1.5.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>${version.amazonaws}</version>
     </dependency>
   </dependencies>
 

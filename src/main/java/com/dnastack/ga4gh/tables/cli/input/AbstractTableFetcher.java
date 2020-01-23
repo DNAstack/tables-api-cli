@@ -2,12 +2,16 @@ package com.dnastack.ga4gh.tables.cli.input;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
+import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
+import com.fasterxml.jackson.core.type.TypeReference;
+import okhttp3.HttpUrl;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import okhttp3.HttpUrl;
 
 public abstract class AbstractTableFetcher implements TableFetcher {
 
@@ -62,7 +66,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
             } else {
                 String baseURL = ConfigUtil.getUserConfig().getApiUrl();
                 return HttpUrl.parse(baseURL).newBuilder()
-                    .addPathSegments(urlOrPath).build().url().toString();
+                        .addPathSegments(urlOrPath).build().url().toString();
 
             }
         } catch (URISyntaxException use) {
@@ -93,7 +97,27 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         return new TableDataIterator(getDataAbsoluteUrl(tableName));
     }
 
-    protected abstract TableData getDataPage(String conext);
+    protected abstract TableData getDataPage(String url);
+
+    protected <T> T getBlobAs(String url, Class<T> clazz) {
+        String data = getBlobData(url);
+        try {
+            return HttpUtils.getMapper().readValue(data, clazz);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected <T> T getBlobAs(String url, TypeReference<T> typeReference) {
+        String data = getBlobData(url);
+        try {
+            return HttpUtils.getMapper().readValue(data, typeReference);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    abstract String getBlobData(String s3Url);
 
 
     public class TableDataIterator implements Iterator<TableData> {
@@ -118,7 +142,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
                 return true;
             }
             return currentPage.getPagination() != null
-                && currentPage.getPagination().getNextPageUrl() != null;
+                    && currentPage.getPagination().getNextPageUrl() != null;
         }
 
         @Override
@@ -129,11 +153,11 @@ public abstract class AbstractTableFetcher implements TableFetcher {
             } else if (currentPage == null) {
                 currentPage = getDataPage(currentContext);
             } else if (currentPage.getPagination() == null
-                || currentPage.getPagination().getNextPageUrl() == null) {
+                    || currentPage.getPagination().getNextPageUrl() == null) {
                 return null;
             } else if (currentPage.getPagination().getNextPageUrl() != null) {
                 currentContext = getAbsoluteUrl(currentPage.getPagination()
-                    .getNextPageUrl(), currentContext);
+                        .getNextPageUrl(), currentContext);
                 currentPage = getDataPage(currentContext);
             }
 

@@ -6,6 +6,7 @@ import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,8 +31,13 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String conext) {
-        return getFileAs(conext, TableData.class);
+    protected TableData getDataPage(String url) {
+        return getFileAs(url, TableData.class);
+    }
+
+    @Override
+    String getBlobData(String s3Url) {
+        return null;
     }
 
     @Override
@@ -47,7 +53,7 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     @Override
     public Table getInfo(String tableName) {
         Table info = getFileAs(getInfoAbsoluteUrl(tableName), Table.class);
-        info.setDataModel(resolveRefs(info.getDataModel(),getInfoAbsoluteUrl(tableName)));
+        info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 

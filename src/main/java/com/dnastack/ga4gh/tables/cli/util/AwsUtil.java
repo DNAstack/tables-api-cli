@@ -3,22 +3,22 @@ package com.dnastack.ga4gh.tables.cli.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GcsUtil {
+public class AwsUtil {
 
-    private final static Pattern GSPattern = Pattern.compile("^gs://(?<bucket>[0-9a-zA-Z_\\-.]+)(?<object>.*)$");
+    private final static Pattern AWSPattern = Pattern.compile("^s3://(?<bucket>[0-9a-zA-Z_\\-.]+)(?<object>.*)$");
 
-    public static String getBucket(String gsUrl) {
-        Matcher matcher = GSPattern.matcher(gsUrl);
+    public static String getBucket(String s3Url) {
+        Matcher matcher = AWSPattern.matcher(s3Url);
         if (matcher.find()) {
             return matcher.group("bucket");
         } else {
-            throw new IllegalArgumentException("Could not handle transfer, this is not a google file");
+            throw new IllegalArgumentException("Could not handle transfer, this is not a AWS S3 file");
         }
     }
 
 
-    public static String getObjectRoot(String gsUrl) {
-        Matcher matcher = GSPattern.matcher(gsUrl);
+    public static String getObjectRoot(String s3Url) {
+        Matcher matcher = AWSPattern.matcher(s3Url);
         if (matcher.find()) {
             String object = matcher.group("object");
             if (object == null) {
@@ -28,7 +28,6 @@ public class GcsUtil {
             } else if (object.startsWith("/")) {
                 object = object.substring(1);
             }
-
             return object;
         } else {
             return "table";

@@ -1,0 +1,22 @@
+{
+  "$id": "city",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "City",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "population": {
+      "type": "integer"
+    },
+    "updated_year": {
+      "type": "integer"
+    }
+  }
+}

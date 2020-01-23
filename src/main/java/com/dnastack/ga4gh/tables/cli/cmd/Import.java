@@ -1,19 +1,10 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
+import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
 import com.dnastack.ga4gh.tables.cli.util.Importer;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -26,6 +17,11 @@ import org.json.JSONTokener;
 import picocli.CommandLine;
 import picocli.CommandLine.Mixin;
 
+import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 //import lombok.extern.slf4j.Slf4j;
 
 @CommandLine.Command(name = "import", mixinStandardHelpOptions = true, description = "Import table (*=required argument)", requiredOptionMarker = '*', sortOptions = false)
@@ -37,25 +33,25 @@ public class Import extends BaseCmd {
     private OutputOptions outputOptions;
 
     @CommandLine.Option(
-        names = {"-d", "--table-description", "--description"},
-        description = "Output Table Description",
-        required = false)
+            names = {"-d", "--table-description", "--description"},
+            description = "Output Table Description",
+            required = false)
     private String description;
 
     @CommandLine.Option(
-        names = {"-i", "--input-file"},
-        description = "Input file in CSV or TSV format.  Column headers must be present.",
-        required = true)
+            names = {"-i", "--input-file"},
+            description = "Input file in CSV or TSV format.  Column headers must be present.",
+            required = true)
     private String inputFile;
 
     @CommandLine.Option(
-        names = {"-dm", "--data-model"},
-        description = "Input data model in JSON SCHEMA format",
-        required = true)
+            names = {"-dm", "--data-model"},
+            description = "Input data model in JSON SCHEMA format",
+            required = true)
     private String inputModel;
 
     @CommandLine.Option(names = {"-q",
-        "--quiet"}, description = "If set, output messages are suppressed", required = false)
+            "--quiet"}, description = "If set, output messages are suppressed", required = false)
     private boolean quiet = false;
 
     @CommandLine.Option(names = {"--input-format"}, description = "Valid values: ${COMPLETION-CANDIDATES}", required = false)
@@ -68,19 +64,19 @@ public class Import extends BaseCmd {
     private Character quoteChar;
 
     @CommandLine.Option(names = {
-        "--record-seperator"}, description = "Record seperator in input file", required = false)
+            "--record-seperator"}, description = "Record seperator in input file", required = false)
     private String recordSeperator;
 
     @CommandLine.Option(names = {
-        "--ignore-empty-lines"}, description = "Whether to ignore empty lines in input file", required = false)
+            "--ignore-empty-lines"}, description = "Whether to ignore empty lines in input file", required = false)
     private Boolean ignoreEmptyLines;
 
     @CommandLine.Option(names = {
-        "--skip-malformed-lines"}, description = "Whether to skip malformed inputs instead of exiting", required = false)
+            "--skip-malformed-lines"}, description = "Whether to skip malformed inputs instead of exiting", required = false)
     private Boolean skipMalformedLines;
 
     @CommandLine.Option(names = {
-        "--page-size"}, description = "max Number of entries per page in the generated output", required = false)
+            "--page-size"}, description = "max Number of entries per page in the generated output", required = false)
     private int pageSize = 25;
 
 
@@ -90,9 +86,9 @@ public class Import extends BaseCmd {
         try (InputStream inputStream = new FileInputStream(inputModel)) {
             JSONObject rawSchema = new JSONObject(new JSONTokener(inputStream));
             SchemaLoader loader = SchemaLoader.builder()
-                .schemaJson(rawSchema)
-                .draftV7Support() // or draftV7Support()
-                .build();
+                    .schemaJson(rawSchema)
+                    .draftV7Support() // or draftV7Support()
+                    .build();
             Schema schema = loader.load().build();
             if (schema.getId() == null) {
                 throw new IllegalArgumentException("The provided input schema has no id");
@@ -173,6 +169,15 @@ public class Import extends BaseCmd {
 
         csvFormat = applyFormatOptions(csvFormat);
 
+        if (outputOptions.getDestination() == null) {
+            outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
+        }
+
+        if (outputOptions.getDestinationTableName() == null) {
+            File f = new File(inputFile);
+            outputOptions.setDestinationTableName(f.getName().replace('.', '_'));
+        }
+
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
             try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
                 importCsvRecords(importer, schema, csvParser);
@@ -193,8 +198,8 @@ public class Import extends BaseCmd {
             } catch (JsonProcessingException | ValidationException ex) {
                 if (skipMalformedLines != null && skipMalformedLines == true) {
                     System.err.println(
-                        "Error processing record " + record.getRecordNumber() + " -- " + ex.getMessage()
-                            + ", skipping.");
+                            "Error processing record " + record.getRecordNumber() + " -- " + ex.getMessage()
+                                    + ", skipping.");
                 } else {
                     throw new IllegalArgumentException(ex);
                 }

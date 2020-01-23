@@ -1,0 +1,11 @@
+{
+    "tables": [
+        {
+            "name": "cities",
+            "description": "A table with reference and pagination",
+            "data_model": {
+                "$ref": "table/cities/data_models/city.json"
+            }
+        }
+    ]
+}

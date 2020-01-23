@@ -1,21 +1,6 @@
 package com.dnastack.ga4gh.dataset.cli.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.dnastack.ga4gh.tables.cli.cmd.Main;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermissions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,10 +9,22 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermissions;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @DisplayName("Cmd Tests")
 public class TestCmd {
 
-    private static final String API_URL = "https://storage.googleapis.com/ga4gh-tables-example";
+    private static final String API_URL = "gs://ga4gh-tables-example";
     private static final String TEST_TABLE_NAME = "subjects";
 
     private static final String EXPECTED_LIST_OUTPUT_FILE = "list/expected_list_output.csv";
@@ -108,8 +105,8 @@ public class TestCmd {
         Files.walkFileTree(expected, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file,
-                BasicFileAttributes attrs)
-                throws IOException {
+                                             BasicFileAttributes attrs)
+                    throws IOException {
                 FileVisitResult result = super.visitFile(file, attrs);
 
                 // get the relative file name from path "expected"
@@ -135,20 +132,20 @@ public class TestCmd {
             File schemaToImport = getTestResource(SCHEMA_TO_IMPORT);
 
             outputDirPath = Files.createTempDirectory("testImportCsv_" + RandomStringUtils.randomAlphanumeric(12),
-                PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
-                    "rwx------"))));
+                    PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
+                            "rwx------"))));
 
             String capturedStdout = runCommand("import",
-                "-N",
-                TEST_TABLE_NAME,
-                "-i",
-                csvToImport.toString(),
-                "-dm",
-                schemaToImport.toString(),
-                "--description",
-                "Sample table describing subjects",
-                "-o",
-                outputDirPath.toString());
+                    "-N",
+                    TEST_TABLE_NAME,
+                    "-i",
+                    csvToImport.toString(),
+                    "-dm",
+                    schemaToImport.toString(),
+                    "--description",
+                    "Sample table describing subjects",
+                    "-o",
+                    outputDirPath.toString());
 
             verifyDirsAreEqual((getTestResource(EXPECTED_IMPORT_OUTPUT)).toPath(), outputDirPath);
         } catch (IOException ie) {
@@ -174,13 +171,13 @@ public class TestCmd {
         try {
 
             outputDirPath = Files.createTempDirectory("testPublis_" + RandomStringUtils.randomAlphanumeric(12),
-                PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
-                    "rwx------"))));
+                    PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
+                            "rwx------"))));
 
             runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
-                .toString(), "-N", TEST_TABLE_NAME);
+                    .toString(), "-N", TEST_TABLE_NAME);
             runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
-                .toString(), "-N", TEST_TABLE_NAME);
+                    .toString(), "-N", TEST_TABLE_NAME);
             verifyDirsAreEqual((getTestResource(EXPECTED_PUBLISH_OUTPUT)).toPath(), outputDirPath);
         } catch (IOException ie) {
             throw new UncheckedIOException(ie);

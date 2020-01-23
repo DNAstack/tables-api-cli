@@ -1,0 +1,7 @@
+{
+    "name": "cities",
+    "description": "A table with reference and pagination",
+    "data_model": {
+        "$ref": "data_models/city.json"
+    }
+}
