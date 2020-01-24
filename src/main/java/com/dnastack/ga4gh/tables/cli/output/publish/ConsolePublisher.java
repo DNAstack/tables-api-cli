@@ -5,7 +5,6 @@ import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.output.OutputTableFormatter;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,11 +37,6 @@ public class ConsolePublisher extends AbstractPublisher implements Closeable {
     public void publish(TableData tableData, int pageNum) {
         TableData newData = new TableData(tableData.getDataModel(), tableData.getData(), null);
         outputWriter.write(newData);
-    }
-
-    @Override
-    public Boolean isBucketEmpty() {
-        return true;
     }
 
     @Override

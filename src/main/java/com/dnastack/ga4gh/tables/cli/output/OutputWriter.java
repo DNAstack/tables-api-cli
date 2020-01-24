@@ -68,10 +68,6 @@ public class OutputWriter implements Closeable {
         write(tableData);
     }
 
-    public Boolean bucketIsEmpty() {
-        return publisher.isBucketEmpty();
-    }
-
     @Override
     public void close() throws IOException {
         if (publisher instanceof Closeable) {

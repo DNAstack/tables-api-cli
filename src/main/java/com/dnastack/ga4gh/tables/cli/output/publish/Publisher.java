@@ -13,8 +13,6 @@ public interface Publisher {
 
     void publish(TableData tableData, int pageNum);
 
-    Boolean isBucketEmpty();
-
     String getObjectRoot(String destination);
 
     Pagination getAbsolutePagination(Pagination oldPagination, int pageNum);

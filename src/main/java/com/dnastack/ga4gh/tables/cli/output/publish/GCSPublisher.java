@@ -5,7 +5,6 @@ import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.GcsUtil;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 
 public class GCSPublisher extends AbstractPublisher {
@@ -50,7 +49,6 @@ public class GCSPublisher extends AbstractPublisher {
 
     @Override
     public void publish(ListTableResponse table) {
-
         String tableInfoJson = format(table);
         String tableInfoPage = "tables";
         Storage storage = StorageOptions.getDefaultInstance().getService();
@@ -79,14 +77,6 @@ public class GCSPublisher extends AbstractPublisher {
         //TODO: Create blob ACL just for this user
     }
 
-    public Boolean isBucketEmpty() {
-        Storage storage = StorageOptions.getDefaultInstance().getService();
-        Page<Blob> blobs = storage.list(this.getBucket());
-        for (Blob blob : blobs.iterateAll()) {
-            return false;
-        }
-        return true;
-    }
 
     @Override
     public String getObjectRoot(String gsUrl) {

@@ -1,7 +1,10 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
+import com.dnastack.ga4gh.tables.cli.config.Config;
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
-import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcher;
+import com.dnastack.ga4gh.tables.cli.input.TableFetcherFactory;
+import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.util.Importer;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -158,17 +161,6 @@ public class Import extends BaseCmd {
 
     @Override
     public void runCmd() {
-        //Read and validate schema.
-        Schema schema = getDataModel();
-        //Read in the CSV.
-        CSVFormat csvFormat;
-        if (predefinedCsvFormat == null) {
-            csvFormat = inferCsvFormatFromExtension(inputFile.toLowerCase());
-        } else {
-            csvFormat = predefinedCsvFormat.getFormat();
-        }
-
-        csvFormat = applyFormatOptions(csvFormat);
 
         if (outputOptions.getDestination() == null) {
             outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
@@ -179,12 +171,24 @@ public class Import extends BaseCmd {
             outputOptions.setDestinationTableName(f.getName().replace('.', '_'));
         }
 
-        OutputWriter o = new OutputWriter(outputOptions);
-        if (!o.bucketIsEmpty()) {
-            System.out.println("The bucket/directory you are trying to import into already has data. Please delete \n" +
+        if (!isDestinationEmpty()) {
+            System.err.println("The bucket/directory you are trying to import into already has data. Please delete \n" +
                     "your existing data if you would like to import any new data into this bucket.");
             return;
         }
+
+        //Read and validate schema.
+        Schema schema = getDataModel();
+
+        //Read in the CSV.
+        CSVFormat csvFormat;
+        if (predefinedCsvFormat == null) {
+            csvFormat = inferCsvFormatFromExtension(inputFile.toLowerCase());
+        } else {
+            csvFormat = predefinedCsvFormat.getFormat();
+        }
+
+        csvFormat = applyFormatOptions(csvFormat);
 
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
             try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
@@ -212,6 +216,20 @@ public class Import extends BaseCmd {
                     throw new IllegalArgumentException(ex);
                 }
             }
+        }
+    }
+
+    // List is empty, list doesn't exist
+    private Boolean isDestinationEmpty() {
+        Config config = ConfigUtil.getUserConfig();
+        TableFetcher tableDataFetcher = TableFetcherFactory
+                .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
+
+        try {
+            ListTableResponse tableList = tableDataFetcher.list();
+            return (tableList == null) || (tableList.getTables().size() == 0);
+        } catch (RuntimeException e) {
+            return true;
         }
     }
 }
