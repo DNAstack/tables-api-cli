@@ -223,7 +223,7 @@ public class Import extends BaseCmd {
     private Boolean isDestinationEmpty() {
         Config config = ConfigUtil.getUserConfig();
         TableFetcher tableDataFetcher = TableFetcherFactory
-                .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
+                .getTableFetcher(outputOptions.getDestination(), false, config.getRequestAuthorization());
 
         try {
             ListTableResponse tableList = tableDataFetcher.list();
