@@ -181,7 +181,7 @@ public class Import extends BaseCmd {
 
         OutputWriter o = new OutputWriter(outputOptions);
         if (!o.bucketIsEmpty()) {
-            System.out.println("The bucket you are trying to import into already has data. Please delete \n" +
+            System.out.println("The bucket/directory you are trying to import into already has data. Please delete \n" +
                     "your existing data if you would like to import any new data into this bucket.");
             return;
         }
