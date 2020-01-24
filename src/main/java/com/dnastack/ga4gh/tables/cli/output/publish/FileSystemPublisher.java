@@ -4,11 +4,13 @@ import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions.OutputMode;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 public class FileSystemPublisher extends AbstractPublisher {
 
@@ -62,6 +64,20 @@ public class FileSystemPublisher extends AbstractPublisher {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public Boolean isBucketEmpty() {
+        try {
+            if (!Files.list(Paths.get(".")).collect(Collectors.toList()).
+                    toString().contains(destination + ",")) {
+                return true;
+            }
+            return (Files.list(Paths.get(destination)).count() == 0);
+        } catch (IOException e) {
+            System.out.println("There was a problem reading from the destination");
+            return false;
+        }
     }
 
     @Override

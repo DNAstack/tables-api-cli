@@ -139,6 +139,11 @@ public class ABSPublisher extends AbstractPublisher {
         }
     }
 
+    @Override
+    public Boolean isBucketEmpty() {
+        // To be implemented
+        return true;
+    }
 
     @Override
     public String getObjectRoot(String destination) {
@@ -146,7 +151,6 @@ public class ABSPublisher extends AbstractPublisher {
     }
 
     private Pagination getSASPagination(Pagination oldPagination) {
-
         return null;
     }
 }

@@ -3,6 +3,8 @@ package com.dnastack.ga4gh.tables.cli.output.publish;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -69,6 +71,14 @@ public class AWSPublisher extends AbstractPublisher {
         s3Client.putObject(this.bucket, dataPage, dataJson);
     }
 
+    public Boolean isBucketEmpty() {
+        final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
+                .withBucketName(this.bucket);
+
+        ObjectListing objectListing = s3Client.listObjects(listObjectsRequest);
+        return (objectListing.getObjectSummaries().size() == 0);
+    }
 
     @Override
     public String getObjectRoot(String awsUrl) {

@@ -1,6 +1,7 @@
 package com.dnastack.ga4gh.tables.cli.cmd;
 
 import com.dnastack.ga4gh.tables.cli.config.ConfigUtil;
+import com.dnastack.ga4gh.tables.cli.output.OutputWriter;
 import com.dnastack.ga4gh.tables.cli.util.Importer;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -176,6 +177,13 @@ public class Import extends BaseCmd {
         if (outputOptions.getDestinationTableName() == null) {
             File f = new File(inputFile);
             outputOptions.setDestinationTableName(f.getName().replace('.', '_'));
+        }
+
+        OutputWriter o = new OutputWriter(outputOptions);
+        if (!o.bucketIsEmpty()) {
+            System.out.println("The bucket you are trying to import into already has data. Please delete \n" +
+                    "your existing data if you would like to import any new data into this bucket.");
+            return;
         }
 
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
