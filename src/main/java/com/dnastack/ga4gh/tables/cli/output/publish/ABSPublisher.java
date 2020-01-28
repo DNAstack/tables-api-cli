@@ -146,7 +146,6 @@ public class ABSPublisher extends AbstractPublisher {
     }
 
     private Pagination getSASPagination(Pagination oldPagination) {
-
         return null;
     }
 }

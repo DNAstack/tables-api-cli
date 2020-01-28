@@ -119,7 +119,6 @@ public abstract class AbstractTableFetcher implements TableFetcher {
 
     abstract String getBlobData(String s3Url);
 
-
     public class TableDataIterator implements Iterator<TableData> {
 
         TableData currentPage;
@@ -166,5 +165,4 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    ;
 }

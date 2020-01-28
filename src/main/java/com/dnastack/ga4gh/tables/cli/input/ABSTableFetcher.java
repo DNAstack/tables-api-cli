@@ -73,8 +73,7 @@ public class ABSTableFetcher extends AbstractTableFetcher {
             return byteArrayOutputStream.toString();
         } catch (InvalidKeyException | URISyntaxException e) {
             throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
-        } catch (
-                StorageException e) {
+        } catch (StorageException e) {
             throw new RuntimeException(String
                     .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(absUrl), e
                             .getMessage()));
