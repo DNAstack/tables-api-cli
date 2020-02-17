@@ -27,7 +27,7 @@ public class OutputOptions implements Cloneable {
         description = "When publishing to Azure Blob Storage, generates signed pagination urls (1 hr expiry).")
     private boolean generateSASPages = false;
 
-    @CommandLine.Option(names = {"-N", "--table-name"},
+    @CommandLine.Option(names = {"-n", "--table-name"},
         description = "A different name to save this table to")
     private String destinationTableName = null;
 
