@@ -136,7 +136,7 @@ public class TestCmd {
                             "rwx------"))));
 
             String capturedStdout = runCommand("import",
-                    "-N",
+                    "-n",
                     TEST_TABLE_NAME,
                     "-i",
                     csvToImport.toString(),
@@ -175,9 +175,9 @@ public class TestCmd {
                             "rwx------"))));
 
             runCommand("info", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
-                    .toString(), "-N", TEST_TABLE_NAME);
+                    .toString(), "-n", TEST_TABLE_NAME);
             runCommand("data", "--api-url", API_URL, TEST_TABLE_NAME, "-o", outputDirPath
-                    .toString(), "-N", TEST_TABLE_NAME);
+                    .toString(), "-n", TEST_TABLE_NAME);
             verifyDirsAreEqual((getTestResource(EXPECTED_PUBLISH_OUTPUT)).toPath(), outputDirPath);
         } catch (IOException ie) {
             throw new UncheckedIOException(ie);
