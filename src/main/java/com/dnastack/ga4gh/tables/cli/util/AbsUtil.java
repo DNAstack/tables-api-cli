@@ -25,8 +25,14 @@ public class AbsUtil {
 
     public static String getConnectionString(String account) {
         final String STORAGE_CONNECTION_STRING_TEMPLATE = "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s";
-        return String
-            .format(STORAGE_CONNECTION_STRING_TEMPLATE, account, ConfigUtil.getUserConfig().getAbsAccountKey());
+
+        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION_STRING");
+        return connectionString != null ? connectionString : String.format(
+                STORAGE_CONNECTION_STRING_TEMPLATE, account, getAccountKey());
     }
 
+    public static String getAccountKey() {
+        String accountKey = System.getenv("AZURE_STORAGE_KEY");
+        return accountKey != null ? accountKey : ConfigUtil.getUserConfig().getAbsAccountKey();
+    }
 }
