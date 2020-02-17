@@ -1,5 +1,9 @@
 package com.dnastack.ga4gh.tables.cli.input;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.model.Table;
 import com.dnastack.ga4gh.tables.cli.model.TableData;
@@ -7,12 +11,8 @@ import com.dnastack.ga4gh.tables.cli.util.AbsUtil;
 import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -61,23 +61,18 @@ public class ABSTableFetcher extends AbstractTableFetcher {
     }
 
     protected String getBlobData(String absUrl) {
-        try {
-            String account = AbsUtil.getAccount(absUrl);
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(AbsUtil.getConnectionString(account));
-            CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            CloudBlobContainer container = blobClient.getContainerReference(AbsUtil.getContainerName(absUrl));
-            CloudBlockBlob blob = container.getBlockBlobReference(absUrl);
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            blob.download(byteArrayOutputStream);
-            return byteArrayOutputStream.toString();
-        } catch (InvalidKeyException | URISyntaxException e) {
-            throw new RuntimeException("Failed to connect to ABS account:" + e.getMessage());
-        } catch (StorageException e) {
-            throw new RuntimeException(String
-                    .format("Unable to connect to ABS container %s : %s", AbsUtil.getContainerName(absUrl), e
-                            .getMessage()));
+        String account = AbsUtil.getAccount(absUrl);
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+                .connectionString(AbsUtil.getConnectionString(account)).buildClient();
+        String container = AbsUtil.getContainerName(absUrl);
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(container);
+        if (!containerClient.exists()) {
+            throw new RuntimeException("The specified container does not exist: " + container);
         }
-    }
 
+        BlobClient blobClient = containerClient.getBlobClient(absUrl);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        blobClient.download(byteArrayOutputStream);
+        return byteArrayOutputStream.toString();
+    }
 }

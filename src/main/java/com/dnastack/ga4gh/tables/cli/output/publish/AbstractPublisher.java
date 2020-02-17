@@ -101,6 +101,10 @@ public abstract class AbstractPublisher implements Publisher {
         return newPagination;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
     public String toString(Object dataset) {
         ObjectMapper mapper = new ObjectMapper();
         try {
