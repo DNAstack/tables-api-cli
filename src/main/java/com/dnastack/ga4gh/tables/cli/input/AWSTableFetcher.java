@@ -13,10 +13,7 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -27,7 +24,7 @@ public class AWSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) {
+    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) throws IOException {
         TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<LinkedHashMap<String, Object>>() {
         };
         if (absoluteRefs.startsWith("s3://")) {
@@ -39,12 +36,12 @@ public class AWSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public TableData getDataPage(String url) {
+    public TableData getDataPage(String url) throws IOException {
         return getBlobAs(url, TableData.class);
     }
 
     @Override
-    public ListTableResponse list() {
+    public ListTableResponse list() throws IOException {
         return getBlobAs(getListAbsoluteUrl(), ListTableResponse.class);
     }
 
@@ -54,13 +51,13 @@ public class AWSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public Table getInfo(String tableName) {
+    public Table getInfo(String tableName) throws IOException {
         Table info = getBlobAs(getInfoAbsoluteUrl(tableName), Table.class);
         info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 
-    protected String getBlobData(String s3Url) {
+    protected String getBlobData(String s3Url) throws IOException {
         String bucket_name = AwsUtil.getBucket(s3Url);
         String key_name = AwsUtil.getObjectRoot(s3Url);
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().build();
@@ -68,9 +65,11 @@ public class AWSTableFetcher extends AbstractTableFetcher {
             S3ObjectInputStream s3is = s3.getObject(bucket_name, key_name).getObjectContent();
             return displayTextInputStream(s3is);
         } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
+            if (e.getStatusCode() == 404) {
+                throw new FileNotFoundException(s3Url);
+            }
+            throw new IOException(e);
         }
-        return null;
     }
 
     private static String displayTextInputStream(InputStream input) {

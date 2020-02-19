@@ -12,11 +12,11 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -27,7 +27,7 @@ public class ABSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) {
+    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) throws IOException {
         URI uri = URI.create(absoluteRefs);
         TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<LinkedHashMap<String, Object>>() {
         };
@@ -39,12 +39,12 @@ public class ABSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String url) {
+    protected TableData getDataPage(String url) throws IOException {
         return getBlobAs(url, TableData.class);
     }
 
     @Override
-    public ListTableResponse list() {
+    public ListTableResponse list() throws IOException {
         return getBlobAs(getListAbsoluteUrl(), ListTableResponse.class);
     }
 
@@ -54,25 +54,34 @@ public class ABSTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public Table getInfo(String tableName) {
+    public Table getInfo(String tableName) throws IOException {
         Table info = getBlobAs(getInfoAbsoluteUrl(tableName), Table.class);
         info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 
-    protected String getBlobData(String absUrl) {
-        String account = AbsUtil.getAccount(absUrl);
-        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                .connectionString(AbsUtil.getConnectionString(account)).buildClient();
-        String container = AbsUtil.getContainerName(absUrl);
-        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(container);
-        if (!containerClient.exists()) {
-            throw new RuntimeException("The specified container does not exist: " + container);
-        }
+    protected String getBlobData(String absUrl) throws IOException {
+        try {
+            String account = AbsUtil.getAccount(absUrl);
+            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+                    .connectionString(AbsUtil.getConnectionString(account)).buildClient();
+            String container = AbsUtil.getContainerName(absUrl);
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(container);
+            if (!containerClient.exists()) {
+                throw new IOException("Blob Container could not found for " + absUrl);
+            }
 
-        BlobClient blobClient = containerClient.getBlobClient(absUrl);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        blobClient.download(byteArrayOutputStream);
-        return byteArrayOutputStream.toString();
+            BlobClient blobClient = containerClient.getBlobClient(absUrl);
+
+            if (!blobClient.exists()) {
+                throw new FileNotFoundException(absUrl);
+            }
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            blobClient.download(byteArrayOutputStream);
+            return byteArrayOutputStream.toString();
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.dnastack.ga4gh.tables.cli.model.TableData;
 import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.SneakyThrows;
 import okhttp3.HttpUrl;
 
 import java.io.IOException;
@@ -74,10 +75,10 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    protected abstract LinkedHashMap<String, Object> resolveRefs(String absoluteRefs);
+    protected abstract LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) throws IOException;
 
 
-    protected LinkedHashMap<String, Object> resolveRefs(LinkedHashMap<String, Object> properties, String urlContext) {
+    protected LinkedHashMap<String, Object> resolveRefs(LinkedHashMap<String, Object> properties, String urlContext) throws IOException {
         String refUrl = (String) properties.get("$ref");
         if (refUrl != null) {
             String absoluteRefUrl = getAbsoluteUrl(refUrl, urlContext);
@@ -97,9 +98,9 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         return new TableDataIterator(getDataAbsoluteUrl(tableName));
     }
 
-    protected abstract TableData getDataPage(String url);
+    protected abstract TableData getDataPage(String url) throws IOException ;
 
-    protected <T> T getBlobAs(String url, Class<T> clazz) {
+    protected <T> T getBlobAs(String url, Class<T> clazz) throws IOException{
         String data = getBlobData(url);
         try {
             return HttpUtils.getMapper().readValue(data, clazz);
@@ -108,7 +109,7 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    protected <T> T getBlobAs(String url, TypeReference<T> typeReference) {
+    protected <T> T getBlobAs(String url, TypeReference<T> typeReference) throws IOException{
         String data = getBlobData(url);
         try {
             return HttpUtils.getMapper().readValue(data, typeReference);
@@ -117,7 +118,15 @@ public abstract class AbstractTableFetcher implements TableFetcher {
         }
     }
 
-    abstract String getBlobData(String s3Url);
+    /**
+     * Retrieves data from the source represented by the TableFetcher implementation.
+     *
+     * @param url Absolute URL we want to retrieve the data from. Never null
+     * @return the data in the form of a string. Null if the data is not retrievable.
+     * @throws java.io.FileNotFoundException if the URL points to a nonexistent resource
+     * @throws java.io.IOException if retrieving the data fails for other reasons (eg. timeout, DNS lookup error, ...)
+     */
+    abstract String getBlobData(String url) throws IOException;
 
     public class TableDataIterator implements Iterator<TableData> {
 
@@ -144,8 +153,9 @@ public abstract class AbstractTableFetcher implements TableFetcher {
                     && currentPage.getPagination().getNextPageUrl() != null;
         }
 
+        @SneakyThrows
         @Override
-        public TableData next() {
+        public TableData next(){
             if (initialPage != null) {
                 currentPage = initialPage;
                 initialPage = null;

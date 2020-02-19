@@ -29,7 +29,7 @@ public class Data extends AuthorizedCmd {
 
 
     @Override
-    public void runCmd() {
+    public void runCmd () throws IOException {
         Config config = ConfigUtil.getUserConfig();
         TableFetcher tableDataFetcher = TableFetcherFactory
             .getTableFetcher(config.getApiUrl(), false, config.getRequestAuthorization());
@@ -46,8 +46,6 @@ public class Data extends AuthorizedCmd {
                 outputWriter.write(tableData);
                 pageNum++;
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }

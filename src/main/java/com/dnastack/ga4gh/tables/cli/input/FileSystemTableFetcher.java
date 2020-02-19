@@ -20,7 +20,7 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) {
+    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) throws IOException {
         TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<LinkedHashMap<String, Object>>() {
         };
         if (absoluteRefs.startsWith("http")) {
@@ -31,7 +31,7 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String url) {
+    protected TableData getDataPage(String url) throws IOException {
         return getFileAs(url, TableData.class);
     }
 
@@ -41,7 +41,7 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public ListTableResponse list() {
+    public ListTableResponse list() throws IOException {
         return getFileAs(getListAbsoluteUrl(), ListTableResponse.class);
     }
 
@@ -51,28 +51,20 @@ public class FileSystemTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public Table getInfo(String tableName) {
+    public Table getInfo(String tableName) throws IOException {
         Table info = getFileAs(getInfoAbsoluteUrl(tableName), Table.class);
         info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 
-    private <T> T getFileAs(String path, Class<T> clazz) {
-        try {
-            String data = getFileData(path);
-            return HttpUtils.getMapper().readValue(data, clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private <T> T getFileAs(String path, Class<T> clazz) throws IOException {
+        String data = getFileData(path);
+        return HttpUtils.getMapper().readValue(data, clazz);
     }
 
-    private <T> T getFileAs(String path, TypeReference<T> typeReference) {
-        try {
-            String data = getFileData(path);
-            return HttpUtils.getMapper().readValue(data, typeReference);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private <T> T getFileAs(String path, TypeReference<T> typeReference) throws IOException {
+        String data = getFileData(path);
+        return HttpUtils.getMapper().readValue(data, typeReference);
     }
 
     private String getFileData(String path) throws IOException {

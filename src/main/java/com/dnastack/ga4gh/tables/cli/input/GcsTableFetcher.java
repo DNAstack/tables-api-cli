@@ -9,9 +9,12 @@ import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -25,7 +28,7 @@ public class GcsTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) {
+    protected LinkedHashMap<String, Object> resolveRefs(String absoluteRefs) throws IOException {
         TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<LinkedHashMap<String, Object>>() {
         };
         if (absoluteRefs.startsWith("gs://")) {
@@ -37,12 +40,12 @@ public class GcsTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    protected TableData getDataPage(String url) {
+    protected TableData getDataPage(String url) throws IOException {
         return getBlobAs(url, TableData.class);
     }
 
     @Override
-    public ListTableResponse list() {
+    public ListTableResponse list() throws IOException {
         return getBlobAs(getListAbsoluteUrl(), ListTableResponse.class);
     }
 
@@ -52,19 +55,23 @@ public class GcsTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    public Table getInfo(String tableName) {
+    public Table getInfo(String tableName) throws IOException {
         Table info = getBlobAs(getInfoAbsoluteUrl(tableName), Table.class);
         info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
     }
 
-    protected String getBlobData(String gsUrl) {
-        Blob blob = storage.get(GcsUtil.getBucket(gsUrl), GcsUtil.getObjectRoot(gsUrl));
-        if (!blob.exists()) {
-            throw new IllegalArgumentException("No file exists at destination: " + gsUrl);
+    protected String getBlobData(String gsUrl) throws IOException {
+        try {
+            Blob blob = storage.get(GcsUtil.getBucket(gsUrl), GcsUtil.getObjectRoot(gsUrl));
+            if (blob == null || !blob.exists()) {
+                throw new FileNotFoundException(gsUrl);
+            }
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            blob.downloadTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toString();
+        } catch (StorageException e) {
+            throw new IOException(e);
         }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        blob.downloadTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toString();
     }
 }

@@ -22,11 +22,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.Mixin;
 
 import java.io.*;
+import java.nio.file.NoSuchFileException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-//import lombok.extern.slf4j.Slf4j;
 
 @CommandLine.Command(name = "import", mixinStandardHelpOptions = true, description = "Import table (*=required argument)", requiredOptionMarker = '*', sortOptions = false)
 //@Slf4j
@@ -160,7 +160,7 @@ public class Import extends BaseCmd {
     }
 
     @Override
-    public void runCmd() {
+    public void runCmd() throws IOException {
 
         if (outputOptions.getDestination() == null) {
             outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
@@ -220,7 +220,7 @@ public class Import extends BaseCmd {
     }
 
     // List is empty, list doesn't exist
-    private Boolean isDestinationEmpty() {
+    private boolean isDestinationEmpty() throws IOException {
         Config config = ConfigUtil.getUserConfig();
         TableFetcher tableDataFetcher = TableFetcherFactory
                 .getTableFetcher(outputOptions.getDestination(), false, config.getRequestAuthorization());
@@ -228,8 +228,8 @@ public class Import extends BaseCmd {
         try {
             ListTableResponse tableList = tableDataFetcher.list();
             return (tableList == null) || (tableList.getTables().size() == 0);
-        } catch (RuntimeException e) {
-            return true;
+        } catch (NoSuchFileException | FileNotFoundException e) {
+             return true;
         }
     }
 }

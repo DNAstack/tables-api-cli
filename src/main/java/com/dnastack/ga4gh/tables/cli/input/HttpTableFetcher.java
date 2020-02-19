@@ -7,6 +7,7 @@ import com.dnastack.ga4gh.tables.cli.util.HttpUtils;
 import com.dnastack.ga4gh.tables.cli.util.RequestAuthorization;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -41,7 +42,7 @@ public class HttpTableFetcher extends AbstractTableFetcher {
 
 
     @Override
-    public Table getInfo(String tableName) {
+    public Table getInfo(String tableName) throws IOException {
         Table info = HttpUtils.getAs(getInfoAbsoluteUrl(tableName), Table.class, authorization);
         info.setDataModel(resolveRefs(info.getDataModel(), getInfoAbsoluteUrl(tableName)));
         return info;
@@ -53,7 +54,7 @@ public class HttpTableFetcher extends AbstractTableFetcher {
     }
 
     @Override
-    String getBlobData(String s3Url) {
-        return null;
+    String getBlobData(String url) {
+        throw new UnsupportedOperationException();
     }
 }
