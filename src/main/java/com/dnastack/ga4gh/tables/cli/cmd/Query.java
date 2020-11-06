@@ -74,9 +74,13 @@ public class Query extends AuthorizedCmd {
 
             Iterator<TableData> data = tableDataFetcher.search(q);
             while (data.hasNext() && pageNum < maxPages) {
-                outputWriter.writeSearchResult(data.next());
+                TableData td = data.next();
+                if(td != null && td.getData() != null && !td.getData().isEmpty()){
+                    outputWriter.writeSearchResult(td);
+                }
             }
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
