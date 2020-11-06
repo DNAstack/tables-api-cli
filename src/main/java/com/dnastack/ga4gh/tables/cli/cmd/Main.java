@@ -42,7 +42,6 @@ public class Main extends BaseCmd {
                 .addSubcommand(new Info())
                 .addSubcommand(new Data())
                 .addSubcommand(new ListTables())
-                .addSubcommand(new Import())
                 .addSubcommand(new Query())
                 .setExecutionStrategy(new RunLast())
                 .setExecutionExceptionHandler(new ExceptionHandler())
