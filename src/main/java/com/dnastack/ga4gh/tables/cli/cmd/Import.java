@@ -7,12 +7,17 @@ import com.dnastack.ga4gh.tables.cli.input.TableFetcherFactory;
 import com.dnastack.ga4gh.tables.cli.model.ListTableResponse;
 import com.dnastack.ga4gh.tables.cli.util.Importer;
 import com.dnastack.ga4gh.tables.cli.util.option.OutputOptions;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -86,6 +91,13 @@ public class Import extends BaseCmd {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    static{
+        objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+        objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true);
+        objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+    }
+
     private Schema getDataModel() {
         try (InputStream inputStream = new FileInputStream(inputModel)) {
             JSONObject rawSchema = new JSONObject(new JSONTokener(inputStream));
@@ -93,14 +105,20 @@ public class Import extends BaseCmd {
                     .schemaJson(rawSchema)
                     .draftV7Support() // or draftV7Support()
                     .build();
+
             Schema schema = loader.load().build();
+
             if (schema.getId() == null) {
                 throw new IllegalArgumentException("The provided input schema has no id");
             }
             return schema;
         } catch (FileNotFoundException fnfe) {
+            System.out.println("file not ofund");
+            fnfe.printStackTrace();
             throw new IllegalArgumentException(fnfe);
         } catch (IOException ie) {
+            System.out.println("file not found");
+            ie.printStackTrace();
             throw new UncheckedIOException(ie);
         }
     }
@@ -149,19 +167,50 @@ public class Import extends BaseCmd {
     }
 
     private Map<String, Object> getJsonFromCsvRecord(Map<String, Integer> headerMap, CSVRecord record) {
-        Map<String, Object> headerValueMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> e : headerMap.entrySet()) {
-            String cellValue = getCell(record, (Integer) e.getValue());
-            if (cellValue != null) {
-                headerValueMap.put(e.getKey(), cellValue);
+        String cellValue = null;
+        try {
+            Map<String, Object> headerValueMap = new LinkedHashMap<>();
+            for (Map.Entry<String, Integer> e : headerMap.entrySet()) {
+                cellValue = getCell(record, (Integer) e.getValue());
+
+                if (cellValue != null) {
+                    //System.out.println("WARNING: assuming numeric looking CSV values are integers");
+                    //                if(StringUtils.isNumeric(cellValue)){
+                    //                    headerValueMap.put(e.getKey(), Integer.parseInt(cellValue));
+                    //                }else {
+                    if (cellValue.startsWith("{") && cellValue.endsWith("}")) {
+                        //assume it's json
+                        cellValue = cellValue.replaceAll(":\\s*False", ":false");
+                        cellValue = cellValue.replaceAll(":\\s*True", ":true"); //couldn't get Jackson to do this automatically.
+                        Map m = objectMapper.readValue(cellValue, new TypeReference<Map<String, Object>>() {
+                        });
+                        if(!m.containsKey("resource")){
+                            throw new RuntimeException("Couldn't find expected resource.");
+                        }
+                        headerValueMap.put(e.getKey(), m.get("resource"));
+                    } else {
+                        //assume it's a string.
+                        headerValueMap.put(e.getKey(), cellValue);
+                    }
+                    //}
+                }
             }
+            return headerValueMap;
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+            System.err.println(cellValue);
+            throw new RuntimeException("Can't continue", e);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            System.err.println(cellValue);
+            throw new RuntimeException("Can't continue", e);
         }
-        return headerValueMap;
     }
 
     @Override
     public void runCmd() throws IOException {
-
+        System.err.println("WARNING: this version has been modified for importing CSVs containing bad json (mixed case Booleans), and is not suitable for general purpose tasks");
+        System.err.println("It was used to import FHIR data from 'kidsfirst'");
         if (outputOptions.getDestination() == null) {
             outputOptions.setDestination(ConfigUtil.getUserConfig().getApiUrl());
         }
@@ -183,13 +232,15 @@ public class Import extends BaseCmd {
         //Read in the CSV.
         CSVFormat csvFormat;
         if (predefinedCsvFormat == null) {
+            System.out.println("Inferring csv format");
             csvFormat = inferCsvFormatFromExtension(inputFile.toLowerCase());
         } else {
+            System.out.println("using predefinedCsvFormat");
             csvFormat = predefinedCsvFormat.getFormat();
         }
 
         csvFormat = applyFormatOptions(csvFormat);
-
+        System.out.println("CSVFormat: "+csvFormat.toString());
         try (CSVParser csvParser = new CSVParser(new BufferedReader(new FileReader(inputFile)), csvFormat)) {
             try (Importer importer = new Importer(outputOptions, description, pageSize, inputModel)) {
                 importCsvRecords(importer, schema, csvParser);
@@ -201,12 +252,36 @@ public class Import extends BaseCmd {
 
     private void importCsvRecords(Importer importer, Schema schema, CSVParser csvParser) {
         Map<String, Integer> headerMap = csvParser.getHeaderMap();
-        assertHeaderInSchema(headerMap, schema);
+//        System.out.println("Checking headerMap");
+//        headerMap.entrySet().forEach(entry-> {
+//                                         System.out.println("Got entry: " + entry.getKey() + " => " + entry.getValue());
+//                                     });
+
+        if(schema != null) {
+            assertHeaderInSchema(headerMap, schema);
+        }
+
+//        schema.getUnprocessedProperties().entrySet().stream().forEach((entry)->{
+//            System.out.println("Got unprocessed prop map entry: " + entry.getKey() + " => " + entry.getValue()+ "(value type: "+entry.getValue().getClass().getCanonicalName()+")");
+//        });
+
         for (CSVRecord record : csvParser) {
+            JSONObject jsonObject = null;
+            String jsonAsString = null;
             try {
+//                System.out.println("Checking csv record "+record.toString());
                 Map<String, Object> json = getJsonFromCsvRecord(headerMap, record);
-                schema.validate(new JSONObject(objectMapper.writeValueAsString(json)));
-                importer.addRecord(json);
+//                System.out.println("json map dump:");
+//                json.entrySet().stream().forEach((entry)->{
+//                    System.out.println("Got json map entry: " + entry.getKey() + " => " + entry.getValue()+ "(value type: "+entry.getValue().getClass().getCanonicalName()+")");
+//                });
+//                System.out.println("end json map dump");
+                if(schema != null) {
+                    jsonAsString = objectMapper.writeValueAsString(json);
+                    jsonObject=new JSONObject(jsonAsString);
+                    schema.validate(jsonObject);
+                    importer.addRecord(json);
+                }
             } catch (JsonProcessingException | ValidationException ex) {
                 if (skipMalformedLines != null && skipMalformedLines == true) {
                     System.err.println(
@@ -217,6 +292,7 @@ public class Import extends BaseCmd {
                 }
             }
         }
+        System.out.println("Done.");
     }
 
     // List is empty, list doesn't exist

@@ -169,8 +169,9 @@ public abstract class AbstractTableFetcher implements TableFetcher {
                         .getNextPageUrl(), currentContext);
                 currentPage = getDataPage(currentContext);
             }
-
-            currentPage.setDataModel(resolveRefs(currentPage.getDataModel(), currentContext));
+            if(currentPage.getDataModel() != null) {
+                currentPage.setDataModel(resolveRefs(currentPage.getDataModel(), currentContext));
+            }
             return currentPage;
         }
     }
