@@ -2,7 +2,7 @@
 
 ## Intro
 
-**GA4GH Tables API** is a subset of endpoints and schemas of **GA4GH Search API**, defined in [ga4gh-search-apis](https://github.com/DNAstack/ga4gh-search-apis) repository.
+**GA4GH Tables API** is a subset of endpoints and schemas of **GA4GH Search API**, defined in [ga4gh-search-apis](https://github.com/ga4gh-discovery/ga4gh-search) repository.
 
 
 ## Usage
