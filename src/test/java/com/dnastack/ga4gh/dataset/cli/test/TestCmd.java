@@ -124,47 +124,6 @@ public class TestCmd {
     }
 
     @Test
-    @DisplayName("Import CSV works")
-    void TestImportCSV() {
-        Path outputDirPath = null;
-        try {
-            File csvToImport = getTestResource(CSV_TO_IMPORT);
-            File schemaToImport = getTestResource(SCHEMA_TO_IMPORT);
-
-            outputDirPath = Files.createTempDirectory("testImportCsv_" + RandomStringUtils.randomAlphanumeric(12),
-                    PosixFilePermissions.asFileAttribute((PosixFilePermissions.fromString(
-                            "rwx------"))));
-
-            String capturedStdout = runCommand("import",
-                    "-n",
-                    TEST_TABLE_NAME,
-                    "-i",
-                    csvToImport.toString(),
-                    "-dm",
-                    schemaToImport.toString(),
-                    "--description",
-                    "Sample table describing subjects",
-                    "-o",
-                    outputDirPath.toString());
-
-            verifyDirsAreEqual((getTestResource(EXPECTED_IMPORT_OUTPUT)).toPath(), outputDirPath);
-        } catch (IOException ie) {
-            throw new UncheckedIOException(ie);
-        } finally {
-            try {
-                if (outputDirPath != null) {
-                    FileUtils.deleteDirectory(outputDirPath.toFile());
-                    if (false) {
-                        throw new IOException("");
-                    } //TEMPORARY!
-                }
-            } catch (IOException ie) {
-                throw new UncheckedIOException(ie);
-            }
-        }
-    }
-
-    @Test
     @DisplayName("Publish To local file system works")
     void TestPublish() {
         Path outputDirPath = null;
