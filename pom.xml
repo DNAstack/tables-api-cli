@@ -17,7 +17,7 @@
     <lombok.version>1.18.8</lombok.version>
     <junit.version>5.4.2</junit.version>
     <everit.version>1.11.1</everit.version>
-    <jackson.version>2.10.2</jackson.version>
+    <jackson.version>2.10.5.1</jackson.version>
     <version.guava>27.1-jre</version.guava>
     <version.slf4j>1.7.26</version.slf4j>
     <logback.version>1.2.3</logback.version>
